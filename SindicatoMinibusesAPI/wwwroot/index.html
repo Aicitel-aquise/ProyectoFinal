@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema // Sindicato de Minibuses La Paz</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Estilos de Película -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 460px;
+            position: relative;
+            z-index: 10;
+        }
+        .hud-corner {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--neon-cyan);
+            pointer-events: none;
+        }
+        .hud-tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .hud-tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+        .hud-bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+        .hud-br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+    </style>
+</head>
+
+<body class="d-flex align-items-center justify-content-center min-vh-100 p-3">
+
+    <div id="loginApp" class="login-box">
+        <!-- HUD Corners -->
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-tr"></div>
+        <div class="hud-corner hud-bl"></div>
+        <div class="hud-corner hud-br"></div>
+
+        <div class="glass-panel p-4 p-md-5">
+            <!-- Header Futurista -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center gap-2 mb-2">
+                    <span class="brand-badge"><i class="bi bi-shield-lock-fill me-1"></i> SEGURIDAD JWT</span>
+                    <span class="status-pill">
+                        <span class="status-dot" :class="apiOnline ? 'active' : 'demo'"></span>
+                        <span class="small">{{ apiOnline ? 'API .NET ONLINE' : 'STANDBY / LOCAL' }}</span>
+                    </span>
+                </div>
+                
+                <h2 class="fw-bold mb-0 glow-cyan font-tactical" style="font-size: 1.85rem;">
+                    SINDICATO MINIBUSES
+                </h2>
+                <div class="text-uppercase small glow-purple fw-semibold tracking-wider">
+                    Terminal Operativa Central · La Paz
+                </div>
+                <div class="text-muted small mt-1" style="font-size: 0.78rem;">
+                    INS-600 Ingeniería de Software · Propuesta 15
+                </div>
+            </div>
+
+            <!-- Formulario de Autenticación -->
+            <form @submit.prevent="ejecutarLogin">
+                <!-- Campo Usuario -->
+                <div class="mb-3">
+                    <label for="nombre_usuario_js" class="form-label d-flex justify-content-between">
+                        <span><i class="bi bi-person-fill text-info me-1"></i> Usuario del Sistema</span>
+                        <span class="text-muted small" style="font-size: 0.7rem;">(nombre_usuario_js)</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-info">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="nombre_usuario_js" 
+                               v-model="credenciales.nombre_usuario_js" 
+                               placeholder="Ej. Honorato Ticona / Irma Calle" 
+                               required 
+                               autocomplete="username">
+                    </div>
+                </div>
+
+                <!-- Campo Contraseña -->
+                <div class="mb-3">
+                    <label for="password_js" class="form-label d-flex justify-content-between">
+                        <span><i class="bi bi-key-fill text-info me-1"></i> Contraseña</span>
+                        <span class="text-muted small" style="font-size: 0.7rem;">(password_js)</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-info">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
+                        <input :type="mostrarPassword ? 'text' : 'password'" 
+                               class="form-control" 
+                               id="password_js" 
+                               v-model="credenciales.password_js" 
+                               placeholder="••••••••••••" 
+                               required 
+                               autocomplete="current-password">
+                        <button type="button" 
+                                class="btn btn-outline-secondary border-secondary text-muted" 
+                                @click="mostrarPassword = !mostrarPassword">
+                            <i :class="mostrarPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Selector Rápido de Usuarios del Examen (Facilita la Evaluación al Docente) -->
+                <div class="mb-4">
+                    <label class="form-label text-muted small" style="font-size: 0.72rem;">
+                        <i class="bi bi-lightning-charge-fill text-warning"></i> ACCESO RÁPIDO PARA DEFENSA DE EXAMEN:
+                    </label>
+                    <div class="d-grid gap-2">
+                        <button type="button" 
+                                class="user-preset-btn d-flex justify-content-between align-items-center"
+                                @click="seleccionarPreset('Honorato Ticona', 'Admin123*')">
+                            <span><i class="bi bi-briefcase-fill text-info me-1"></i> <strong>Honorato Ticona</strong></span>
+                            <span class="badge bg-primary text-dark fw-bold">Secretario de Hacienda</span>
+                        </button>
+                        <button type="button" 
+                                class="user-preset-btn d-flex justify-content-between align-items-center"
+                                @click="seleccionarPreset('Irma Calle', 'Irma123*')">
+                            <span><i class="bi bi-phone-fill text-warning me-1"></i> <strong>Irma Calle</strong></span>
+                            <span class="badge bg-warning text-dark fw-bold">Controladora de Parada</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botón de Entrada -->
+                <button type="submit" class="btn btn-cyber w-100 py-3 mb-2" :disabled="cargando">
+                    <span v-if="cargando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <span v-if="!cargando"><i class="bi bi-cpu-fill me-2"></i> INICIAR SISTEMA TÁCTICO</span>
+                    <span v-else>VERIFICANDO CREDENCIALES JWT...</span>
+                </button>
+            </form>
+
+            <!-- Mensaje de Error Animado -->
+            <div v-if="mensajeError" class="alert alert-cinematic-blocked mt-3 p-3 text-center" role="alert">
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                    <strong class="glow-danger text-uppercase" style="font-size: 0.85rem;">FALLO DE AUTENTICACIÓN</strong>
+                </div>
+                <div class="small text-light">{{ mensajeError }}</div>
+            </div>
+
+            <!-- Ajuste de Endpoint API -->
+            <div class="text-center mt-4 pt-2 border-top border-secondary border-opacity-25">
+                <button type="button" class="btn btn-link text-muted btn-sm text-decoration-none" @click="toggleConfigApi">
+                    <i class="bi bi-gear-fill me-1"></i> Servidor API: <span class="font-mono text-info">{{ apiBaseUrl }}</span>
+                </button>
+                <div v-if="mostrarConfigApi" class="mt-2 text-start p-3 rounded" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(0,243,255,0.2);">
+                    <label class="form-label small text-info">URL Base de la API .NET:</label>
+                    <div class="input-group input-group-sm mb-2">
+                        <input type="text" class="form-control font-mono" v-model="tempApiUrl">
+                        <button class="btn btn-cyber-outline" @click="guardarApiUrl">Guardar</button>
+                    </div>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-1" style="font-size: 0.7rem;" @click="tempApiUrl = 'http://localhost:5136'">:5136 (HTTP)</button>
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-1" style="font-size: 0.7rem;" @click="tempApiUrl = 'https://localhost:7001'">:7001 (HTTPS)</button>
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-1" style="font-size: 0.7rem;" @click="tempApiUrl = 'http://localhost:5040'">:5040</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Vue 3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <!-- Script de la Aplicación -->
+    <script src="app.js"></script>
+    <script>
+        // Montar la aplicación de Login si estamos en index.html
+        if (typeof iniciarLoginApp === 'function') {
+            iniciarLoginApp();
+        }
+    </script>
+</body>
+
+</html>

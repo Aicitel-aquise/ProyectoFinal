@@ -1,0 +1,705 @@
+/* ==========================================================================
+   SINDICATO DE MINIBUSES - TERMINAL CIBERNÉTICA DE CONTROL OPERATIVO
+   Estilo de Película de Ciencia Ficción / Glassmorphism HUD Futurista
+   ========================================================================== */
+
+:root {
+    --bg-dark: #070b14;
+    --bg-card: rgba(13, 21, 38, 0.82);
+    --bg-card-hover: rgba(18, 30, 56, 0.92);
+    --neon-cyan: #00f3ff;
+    --neon-cyan-glow: rgba(0, 243, 255, 0.45);
+    --neon-blue: #0088ff;
+    --neon-purple: #9d4edd;
+    --neon-purple-glow: rgba(157, 78, 221, 0.4);
+    --neon-danger: #ff0055;
+    --neon-danger-glow: rgba(255, 0, 85, 0.55);
+    --neon-warning: #ffb703;
+    --neon-warning-glow: rgba(255, 183, 3, 0.45);
+    --neon-success: #00ff88;
+    --neon-success-glow: rgba(0, 255, 136, 0.45);
+    --border-glass: rgba(0, 243, 255, 0.22);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(157, 78, 221, 0.12) 0%, transparent 45%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 35px 35px, 35px 35px;
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Efecto de línea de escaneo sutil estilo pantalla táctica */
+body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.35;
+}
+
+/* Glassmorphism Ultra Nivel */
+.glass-panel {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+    box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.6), 0 0 20px -5px rgba(0, 243, 255, 0.12);
+    border-radius: 18px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-panel:hover {
+    border-color: rgba(0, 243, 255, 0.4);
+    box-shadow: 0 14px 40px -5px rgba(0, 0, 0, 0.7), 0 0 25px -5px rgba(0, 243, 255, 0.2);
+}
+
+.glass-panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    animation: radar-sweep 6s infinite linear;
+}
+
+@keyframes radar-sweep {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+/* Barra Superior / Header de Misión */
+.hud-navbar {
+    background: rgba(8, 14, 28, 0.88);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(0, 243, 255, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    padding: 0.85rem 1.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.brand-badge {
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.15), rgba(157, 78, 221, 0.15));
+    border: 1px solid var(--neon-cyan);
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px var(--neon-cyan-glow);
+}
+
+/* Indicadores de Estado y Reloj */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.active {
+    background-color: var(--neon-success);
+    box-shadow: 0 0 10px var(--neon-success);
+    animation: blink 2s infinite ease-in-out;
+}
+
+.status-dot.demo {
+    background-color: var(--neon-warning);
+    box-shadow: 0 0 10px var(--neon-warning);
+    animation: blink 1.2s infinite ease-in-out;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Tipografía de Película */
+.font-tactical {
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.glow-cyan {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 14px var(--neon-cyan-glow);
+}
+
+.glow-purple {
+    color: #c77dff;
+    text-shadow: 0 0 14px var(--neon-purple-glow);
+}
+
+.glow-danger {
+    color: var(--neon-danger);
+    text-shadow: 0 0 14px var(--neon-danger-glow);
+}
+
+/* Form Controls Holográficos */
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+
+.form-control, .form-select {
+    background: rgba(6, 12, 26, 0.75) !important;
+    border: 1px solid rgba(0, 243, 255, 0.25) !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
+    padding: 0.7rem 1rem !important;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(8, 16, 36, 0.95) !important;
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 0 16px rgba(0, 243, 255, 0.4) !important;
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted) !important;
+    font-size: 0.88rem;
+}
+
+/* Botones Cinemáticos */
+.btn-cyber {
+    background: linear-gradient(135deg, var(--neon-cyan), #0077ff);
+    color: #030712 !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    border: none;
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 0 18px rgba(0, 243, 255, 0.45);
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-cyber:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 28px rgba(0, 243, 255, 0.8);
+    background: linear-gradient(135deg, #ffffff, var(--neon-cyan));
+}
+
+.btn-cyber:active {
+    transform: translateY(1px);
+}
+
+.btn-cyber-outline {
+    background: rgba(0, 243, 255, 0.08);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan) !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+}
+
+.btn-cyber-outline:hover {
+    background: var(--neon-cyan);
+    color: #030712 !important;
+    box-shadow: 0 0 20px var(--neon-cyan-glow);
+}
+
+.btn-danger-cyber {
+    background: linear-gradient(135deg, var(--neon-danger), #b50036);
+    color: #ffffff !important;
+    border: none;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 0 16px rgba(255, 0, 85, 0.4);
+    transition: all 0.25s ease;
+}
+
+.btn-danger-cyber:hover {
+    box-shadow: 0 0 25px rgba(255, 0, 85, 0.8);
+    transform: translateY(-2px);
+}
+
+.btn-success-cyber {
+    background: linear-gradient(135deg, var(--neon-success), #00994d);
+    color: #030712 !important;
+    border: none;
+    font-weight: 800;
+    border-radius: 10px;
+    box-shadow: 0 0 16px rgba(0, 255, 136, 0.4);
+    transition: all 0.25s ease;
+}
+
+.btn-success-cyber:hover {
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.8);
+    transform: translateY(-2px);
+}
+
+/* Botones de Pestañas / Navegación */
+.nav-pills-cyber .nav-link {
+    color: var(--text-secondary);
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.65rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-pills-cyber .nav-link:hover {
+    color: var(--neon-cyan);
+    border-color: rgba(0, 243, 255, 0.4);
+    background: rgba(0, 243, 255, 0.08);
+}
+
+.nav-pills-cyber .nav-link.active {
+    color: #030712;
+    background: linear-gradient(135deg, var(--neon-cyan), #00a2ff);
+    box-shadow: 0 0 18px rgba(0, 243, 255, 0.5);
+    border-color: transparent;
+    font-weight: 700;
+}
+
+/* Tarjetas de Métricas HUD */
+.metric-card {
+    background: rgba(10, 18, 35, 0.85);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 14px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.metric-card.danger::before {
+    background: var(--neon-danger);
+    box-shadow: 0 0 10px var(--neon-danger);
+}
+
+.metric-card.success::before {
+    background: var(--neon-success);
+    box-shadow: 0 0 10px var(--neon-success);
+}
+
+.metric-card.purple::before {
+    background: var(--neon-purple);
+    box-shadow: 0 0 10px var(--neon-purple);
+}
+
+.metric-val {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* Tablas Holográficas */
+.table-cyber {
+    color: var(--text-primary) !important;
+    background: transparent !important;
+    vertical-align: middle;
+    margin-bottom: 0;
+}
+
+.table-cyber th {
+    background: rgba(6, 12, 28, 0.9) !important;
+    color: var(--neon-cyan) !important;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.3) !important;
+    padding: 1rem 0.85rem;
+}
+
+.table-cyber td {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 0.85rem;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+}
+
+.table-cyber tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-cyber tbody tr:hover {
+    background: rgba(0, 243, 255, 0.05) !important;
+    box-shadow: inset 2px 0 0 var(--neon-cyan);
+}
+
+/* Badges de Estado */
+.badge-neon-success {
+    background: rgba(0, 255, 136, 0.15);
+    color: #00ff88;
+    border: 1px solid rgba(0, 255, 136, 0.4);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.25);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-neon-danger {
+    background: rgba(255, 0, 85, 0.18);
+    color: #ff3377;
+    border: 1px solid rgba(255, 0, 85, 0.5);
+    box-shadow: 0 0 12px rgba(255, 0, 85, 0.35);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-neon-info {
+    background: rgba(0, 243, 255, 0.15);
+    color: #00f3ff;
+    border: 1px solid rgba(0, 243, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   ALERTA CRÍTICA DE PELÍCULA (VEHÍCULO BLOQUEADO)
+   ========================================================================== */
+.alert-cinematic-blocked {
+    background: linear-gradient(135deg, rgba(255, 0, 85, 0.25), rgba(40, 5, 15, 0.95));
+    border: 2px solid var(--neon-danger);
+    box-shadow: 0 0 35px rgba(255, 0, 85, 0.6), inset 0 0 20px rgba(255, 0, 85, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    animation: danger-pulse 1.8s infinite alternate;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes danger-pulse {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 10px rgba(255, 0, 85, 0.2);
+        border-color: rgba(255, 0, 85, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 45px rgba(255, 0, 85, 0.9), inset 0 0 30px rgba(255, 0, 85, 0.5);
+        border-color: #ff0055;
+    }
+}
+
+.alert-cinematic-blocked .danger-icon {
+    font-size: 3rem;
+    color: var(--neon-danger);
+    text-shadow: 0 0 25px var(--neon-danger);
+    animation: shake 0.6s infinite ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-6deg); }
+    75% { transform: rotate(6deg); }
+}
+
+/* Modales Futuristas */
+.modal-content.cyber-modal {
+    background: rgba(10, 16, 32, 0.96) !important;
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--neon-cyan) !important;
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.3) !important;
+    border-radius: 20px;
+    color: var(--text-primary);
+}
+
+.modal-header.cyber-header {
+    border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-footer.cyber-footer {
+    border-top: 1px solid rgba(0, 243, 255, 0.2);
+    padding: 1rem 1.5rem;
+}
+
+/* Quick User Selector Buttons en Login */
+.user-preset-btn {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.user-preset-btn:hover {
+    border-color: var(--neon-cyan);
+    color: #ffffff;
+    background: rgba(0, 243, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Scrollbar Futurista */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(5, 10, 20, 0.95);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 243, 255, 0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+/* Mobile Friendly Optimization */
+@media (max-width: 768px) {
+    .hud-navbar {
+        padding: 0.65rem 1rem;
+    }
+    .metric-val {
+        font-size: 1.6rem;
+    }
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+}
+
+
+.table-cyber tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-cyber tbody tr:hover {
+    background: rgba(0, 243, 255, 0.05) !important;
+    box-shadow: inset 2px 0 0 var(--neon-cyan);
+}
+
+/* Badges de Estado */
+.badge-neon-success {
+    background: rgba(0, 255, 136, 0.15);
+    color: #00ff88;
+    border: 1px solid rgba(0, 255, 136, 0.4);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.25);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-neon-danger {
+    background: rgba(255, 0, 85, 0.18);
+    color: #ff3377;
+    border: 1px solid rgba(255, 0, 85, 0.5);
+    box-shadow: 0 0 12px rgba(255, 0, 85, 0.35);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-neon-info {
+    background: rgba(0, 243, 255, 0.15);
+    color: #00f3ff;
+    border: 1px solid rgba(0, 243, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   ALERTA CRÍTICA DE PELÍCULA (VEHÍCULO BLOQUEADO)
+   ========================================================================== */
+.alert-cinematic-blocked {
+    background: linear-gradient(135deg, rgba(255, 0, 85, 0.25), rgba(40, 5, 15, 0.95));
+    border: 2px solid var(--neon-danger);
+    box-shadow: 0 0 35px rgba(255, 0, 85, 0.6), inset 0 0 20px rgba(255, 0, 85, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    animation: danger-pulse 1.8s infinite alternate;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes danger-pulse {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 10px rgba(255, 0, 85, 0.2);
+        border-color: rgba(255, 0, 85, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 45px rgba(255, 0, 85, 0.9), inset 0 0 30px rgba(255, 0, 85, 0.5);
+        border-color: #ff0055;
+    }
+}
+
+.alert-cinematic-blocked .danger-icon {
+    font-size: 3rem;
+    color: var(--neon-danger);
+    text-shadow: 0 0 25px var(--neon-danger);
+    animation: shake 0.6s infinite ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-6deg); }
+    75% { transform: rotate(6deg); }
+}
+
+/* Modales Futuristas */
+.modal-content.cyber-modal {
+    background: rgba(10, 16, 32, 0.96) !important;
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--neon-cyan) !important;
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.3) !important;
+    border-radius: 20px;
+    color: var(--text-primary);
+}
+
+.modal-header.cyber-header {
+    border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-footer.cyber-footer {
+    border-top: 1px solid rgba(0, 243, 255, 0.2);
+    padding: 1rem 1.5rem;
+}
+
+/* Quick User Selector Buttons en Login */
+.user-preset-btn {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.user-preset-btn:hover {
+    border-color: var(--neon-cyan);
+    color: #ffffff;
+    background: rgba(0, 243, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Scrollbar Futurista */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(5, 10, 20, 0.95);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 243, 255, 0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+/* Mobile Friendly Optimization */
+@media (max-width: 768px) {
+    .hud-navbar {
+        padding: 0.65rem 1rem;
+    }
+    .metric-val {
+        font-size: 1.6rem;
+    }
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+}

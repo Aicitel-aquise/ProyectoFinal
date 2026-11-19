@@ -1,0 +1,565 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sindicato de Minibuses (La Paz) - Enterprise Edition</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Vue.js 3 por CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #334155;
+        }
+
+        .card-custom {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-custom {
+            color: #e2e8f0;
+        }
+
+            .table-custom th {
+                background-color: #0f172a !important;
+                color: #38bdf8 !important;
+                border-bottom: 2px solid #334155;
+            }
+
+            .table-custom td {
+                border-color: #334155 !important;
+                vertical-align: middle;
+            }
+
+        .nav-tabs .nav-link {
+            color: #94a3b8;
+            border: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+
+            .nav-tabs .nav-link:hover {
+                color: #38bdf8;
+                background-color: rgba(56, 189, 248, 0.05);
+            }
+
+            .nav-tabs .nav-link.active {
+                color: #ffffff !important;
+                background-color: #1e293b !important;
+                border-bottom: 3px solid #38bdf8;
+            }
+
+        .form-control, .form-select {
+            background-color: #0f172a;
+            border: 1px solid #475569;
+            color: #f8fafc;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background-color: #0f172a;
+                border-color: #38bdf8;
+                color: #f8fafc;
+                box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.2s;
+        }
+
+            .btn-primary-custom:hover {
+                background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+                transform: translateY(-1px);
+            }
+    </style>
+</head>
+<body>
+    <div id="app" class="container py-4">
+
+        <!-- ENCABEZADO -->
+        <div class="navbar-custom p-4 rounded-4 shadow-lg mb-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary">
+                    <i class="bi bi-bus-front fs-2 text-info"></i>
+                </div>
+                <div>
+                    <h2 class="mb-0 fw-bold text-white">Sindicato de Minibuses <span class="text-info fs-5">La Paz</span></h2>
+                    <p class="mb-0 text-muted small">Sistema Integral de Gestión de Flota y Aportes • INS-600</p>
+                </div>
+            </div>
+            <div v-if="token" class="d-flex align-items-center gap-3">
+                <div class="text-end d-none d-md-block">
+                    <span class="d-block fw-bold text-white">{{ usuarioNombre }}</span>
+                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">{{ usuarioRol }}</span>
+                </div>
+                <button @click="cerrarSesion" class="btn btn-outline-danger btn-sm px-3 py-2 rounded-3">
+                    <i class="bi bi-box-arrow-right me-1"></i> Salir
+                </button>
+            </div>
+        </div>
+
+        <!-- ALERTAS -->
+        <div v-if="mensaje" class="alert alert-info alert-dismissible fade show shadow" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i> {{ mensaje }}
+            <button type="button" class="btn-close btn-close-white" @click="mensaje = ''"></button>
+        </div>
+
+        <!-- 1. PANTALLA DE LOGIN -->
+        <div v-if="!token" class="row justify-content-center align-items-center" style="min-height: 70vh;">
+            <div class="col-md-5">
+                <div class="card card-custom p-4">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-opacity-10 text-info d-inline-block p-3 rounded-circle mb-3">
+                            <i class="bi bi-shield-lock fs-1"></i>
+                        </div>
+                        <h3 class="fw-bold text-white">Acceso al Sistema</h3>
+                        <p class="text-muted small">Ingrese sus credenciales institucionales autorizadas</p>
+                    </div>
+                    <form @submit.prevent="iniciarSesion">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">USUARIO</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-person"></i></span>
+                                <input v-model="loginForm.nombre_usuario_js" type="text" class="form-control border-start-0" placeholder="Ej: Honorato Ticona" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold">CONTRASEÑA</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-key"></i></span>
+                                <input v-model="loginForm.password_js" type="password" class="form-control border-start-0" placeholder="••••••••" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100 py-3 shadow-sm">
+                            Iniciar Sesión <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                    <div class="mt-4 p-3 bg-dark rounded-3 border border-secondary border-opacity-25 text-muted small">
+                        <span class="fw-bold text-info d-block mb-1"><i class="bi bi-lightbulb me-1"></i> Accesos rápidos de prueba:</span>
+                        - Secretario: <code class="text-warning">Honorato Ticona</code> / <code class="text-light">secretario123</code><br>
+                        - Controlador: <code class="text-warning">Irma Calle</code> / <code class="text-light">controlador123</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL PRINCIPAL AUTENTICADO -->
+        <div v-else>
+            <!-- NAVEGACIÓN -->
+            <ul class="nav nav-tabs border-bottom-0 mb-4">
+                <li class="nav-item">
+                    <a class="nav-link" :class="{ active: pestana === 'hojas' }" href="#" @click.prevent="pestana = 'hojas'">
+                        <i class="bi bi-file-earmark-text me-2"></i> Emisión Hoja de Ruta
+                    </a>
+                </li>
+                <li class="nav-item" v-if="usuarioRol === 'Secretario'">
+                    <a class="nav-link" :class="{ active: pestana === 'afiliados' }" href="#" @click.prevent="cargarAfiliados">
+                        <i class="bi bi-people me-2"></i> Mantenimiento Afiliados
+                    </a>
+                </li>
+                <li class="nav-item" v-if="usuarioRol === 'Secretario'">
+                    <a class="nav-link" :class="{ active: pestana === 'vehiculos' }" href="#" @click.prevent="cargarVehiculos">
+                        <i class="bi bi-truck me-2"></i> Mantenimiento Vehículos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" :class="{ active: pestana === 'aportes' }" href="#" @click.prevent="cargarAportesPendientes">
+                        <i class="bi bi-credit-card me-2"></i> Control de Aportes
+                    </a>
+                </li>
+                <li class="nav-item" v-if="usuarioRol === 'Secretario'">
+                    <a class="nav-link" :class="{ active: pestana === 'reportes' }" href="#" @click.prevent="cargarReporte">
+                        <i class="bi bi-bar-chart-line me-2"></i> Reporte Recaudación
+                    </a>
+                </li>
+            </ul>
+
+            <!-- 2. EMISIÓN DE HOJA DE RUTA -->
+            <div v-if="pestana === 'hojas'" class="card card-custom p-4">
+                <h4 class="text-white fw-bold mb-1">Proceso Central: Emisión de Hoja de Ruta Diaria</h4>
+                <p class="text-muted small mb-4">Control en parada y validación automática de reglas de negocio.</p>
+                <form @submit.prevent="emitirHojaRuta">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold">PLACA DEL MINIBÚS</label>
+                            <input v-model="hojaForm.placa_js" type="text" class="form-control text-uppercase" placeholder="Ej: 4321XYZ" required>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-check mt-4">
+                                <input v-model="hojaForm.aporte_pagado_js" class="form-check-input" type="checkbox" id="pagoCheck">
+                                <label class="form-check-label text-white" for="pagoCheck">Paga aporte diario (Bs 10) al contado</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom mt-4 px-4 py-2">Emitir Hoja de Ruta</button>
+                </form>
+
+                <div v-if="ultimaHoja" class="mt-4 p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3">
+                    <h5 class="text-success fw-bold mb-2"><i class="bi bi-check-circle-fill me-2"></i> Hoja de Ruta Emitida Exitosamente</h5>
+                    <p class="mb-1 text-white"><strong>N.º Hoja:</strong> {{ ultimaHoja.id_hoja_ruta_js }}</p>
+                    <p class="mb-1 text-white"><strong>Placa:</strong> {{ ultimaHoja.placa_js }}</p>
+                    <p class="mb-1 text-white"><strong>Fecha:</strong> {{ ultimaHoja.fecha_emision_js }}</p>
+                    <p class="mb-0 text-white"><strong>Aporte:</strong> {{ ultimaHoja.aporte_pagado_js ? 'Pagado (Bs 10)' : 'Pendiente' }}</p>
+                </div>
+            </div>
+
+            <!-- 3. MANTENIMIENTO AFILIADOS -->
+            <div v-if="pestana === 'afiliados' && usuarioRol === 'Secretario'" class="card card-custom p-4">
+                <h4 class="text-white fw-bold mb-3">Gestión de Afiliados</h4>
+                <form @submit.prevent="guardarAfiliado" class="row g-3 mb-4 p-3 bg-dark rounded-3 border border-secondary border-opacity-25">
+                    <div class="col-md-5">
+                        <input v-model="afiliadoForm.nombre_js" type="text" class="form-control" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="col-md-5">
+                        <input v-model="afiliadoForm.celular_js" type="text" class="form-control" placeholder="Número de celular" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary-custom w-100">Guardar</button>
+                    </div>
+                </form>
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Celular</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="af in afiliados" :key="af.id_afiliado_js">
+                            <td>#{{ af.id_afiliado_js }}</td>
+                            <td>{{ af.nombre_js }}</td>
+                            <td>{{ af.celular_js }}</td>
+                            <td>
+                                <button @click="eliminarAfiliado(af.id_afiliado_js)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 4. MANTENIMIENTO VEHÍCULOS -->
+            <div v-if="pestana === 'vehiculos' && usuarioRol === 'Secretario'" class="card card-custom p-4">
+                <h4 class="text-white fw-bold mb-3">Gestión de Vehículos / Minibuses</h4>
+                <form @submit.prevent="guardarVehiculo" class="row g-3 mb-4 p-3 bg-dark rounded-3 border border-secondary border-opacity-25">
+                    <div class="col-md-3">
+                        <input v-model="vehiculoForm.placa_js" type="text" class="form-control text-uppercase" placeholder="Placa (Ej: 4321XYZ)" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input v-model="vehiculoForm.linea_js" type="text" class="form-control" placeholder="Línea de transporte" required>
+                    </div>
+                    <div class="col-md-4">
+                        <select v-model="vehiculoForm.id_afiliado_js" class="form-select" required>
+                            <option value="" disabled>Seleccione afiliado dueño...</option>
+                            <option v-for="af in afiliados" :value="af.id_afiliado_js">{{ af.nombre_js }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary-custom w-100">Guardar</button>
+                    </div>
+                </form>
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Placa</th>
+                            <th>Línea</th>
+                            <th>Afiliado Dueño</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="v in vehiculos" :key="v.id_vehiculo_js">
+                            <td>#{{ v.id_vehiculo_js }}</td>
+                            <td><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">{{ v.placa_js }}</span></td>
+                            <td>{{ v.linea_js }}</td>
+                            <td>{{ v.nombre_afiliado_js }}</td>
+                            <td>
+                                <button @click="eliminarVehiculo(v.id_vehiculo_js)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 5. CONTROL DE APORTES -->
+            <div v-if="pestana === 'aportes'" class="card card-custom p-4">
+                <h4 class="text-white fw-bold mb-1">Control de Aportes Pendientes</h4>
+                <p class="text-muted small mb-4">Gestión de deudas de la flota (Límite: Máximo 3 deudas por vehículo).</p>
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th>N.º Hoja</th>
+                            <th>Placa</th>
+                            <th>Fecha Emisión</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="ap in aportesPendientes" :key="ap.id_hoja_ruta_js">
+                            <td>#{{ ap.id_hoja_ruta_js }}</td>
+                            <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">{{ ap.placa_js }}</span></td>
+                            <td>{{ ap.fecha_emision_js }}</td>
+                            <td>Bs {{ ap.monto_js }}</td>
+                            <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Pendiente</span></td>
+                            <td>
+                                <button @click="pagarAporte(ap.id_hoja_ruta_js)" class="btn btn-success btn-sm px-3">
+                                    <i class="bi bi-cash-coin me-1"></i> Cobrar / Pagar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="aportesPendientes.length === 0">
+                            <td colspan="6" class="text-center text-muted py-4">¡Toda la flota se encuentra al día con sus aportes! No hay deudas registradas.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 6. REPORTE FINANCIERO -->
+            <div v-if="pestana === 'reportes' && usuarioRol === 'Secretario'" class="card card-custom p-4">
+                <h4 class="text-white fw-bold mb-4">Reporte Financiero y de Recaudación</h4>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card success">
+                            <h6 class="text-muted small fw-bold">TOTAL RECAUDADO HOY</h6>
+                            <h3 class="text-success fw-bold mb-0">Bs {{ reporte.total_recaudado_js ?? 0 }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card warning">
+                            <h6 class="text-muted small fw-bold">APORTES PENDIENTES GLOBALES</h6>
+                            <h3 class="text-warning fw-bold mb-0">{{ reporte.aportes_pendientes_js ?? 0 }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card info">
+                            <h6 class="text-muted small fw-bold">HOJAS EMITIDAS HOY</h6>
+                            <h3 class="text-info fw-bold mb-0">{{ reporte.hojas_emitidas_hoy_js ?? 0 }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="text-white fw-bold mb-3">Desglose Detallado por Afiliado</h5>
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th>Afiliado</th>
+                            <th>Celular</th>
+                            <th>N.º Vehículos</th>
+                            <th>Total Aportado</th>
+                            <th>Deuda Pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="det in reporte.detalles_afiliados_js" :key="det.nombre_afiliado_js">
+                            <td>{{ det.nombre_afiliado_js }}</td>
+                            <td>{{ det.celular_js }}</td>
+                            <td>{{ det.cantidad_vehiculos_js }}</td>
+                            <td class="text-success">Bs {{ det.total_aportado_js }}</td>
+                            <td class="text-danger">Bs {{ det.deuda_pendiente_js }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPT DE VUE.JS Y CONEXIÓN CON LA API -->
+    <script>
+                const { createApp, ref, reactive, onMounted } = Vue;
+
+                createApp({
+                    setup() {
+                        const token = ref(localStorage.getItem('token_sindicato') || '');
+                        const usuarioNombre = ref(localStorage.getItem('nombre_sindicato') || '');
+                        const usuarioRol = ref(localStorage.getItem('rol_sindicato') || '');
+                        const pestana = ref('hojas');
+                        const mensaje = ref('');
+
+                        const loginForm = reactive({ nombre_usuario_js: '', password_js: '' });
+                        const hojaForm = reactive({ placa_js: '', aporte_pagado_js: true });
+                        const afiliadoForm = reactive({ nombre_js: '', celular_js: '' });
+                        const vehiculoForm = reactive({ placa_js: '', linea_js: '', id_afiliado_js: '' });
+
+                        const ultimaHoja = ref(null);
+                        const afiliados = ref([]);
+                        const vehiculos = ref([]);
+                        const aportesPendientes = ref([]);
+                        const reporte = ref({});
+
+                        const headers = () => ({
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token.value}`
+                        });
+
+                        const iniciarSesion = async () => {
+                            try {
+                                const res = await fetch('/api/auth/login', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(loginForm)
+                                });
+                                const data = await res.json();
+                                if (res.ok) {
+                                    token.value = data.token_js;
+                                    usuarioNombre.value = data.nombre_js;
+                                    usuarioRol.value = data.rol_js;
+                                    localStorage.setItem('token_sindicato', data.token_js);
+                                    localStorage.setItem('nombre_sindicato', data.nombre_js);
+                                    localStorage.setItem('rol_sindicato', data.rol_js);
+                                    mensaje.value = '¡Bienvenido al sistema, ' + data.nombre_js + '!';
+                                } else {
+                                    mensaje.value = data.mensaje || 'Error al iniciar sesión.';
+                                }
+                            } catch (err) {
+                                mensaje.value = 'Error de red al intentar conectar con la API.';
+                            }
+                        };
+
+                        const cerrarSesion = () => {
+                            token.value = '';
+                            localStorage.clear();
+                            mensaje.value = 'Sesión cerrada correctamente.';
+                        };
+
+                        const emitirHojaRuta = async () => {
+                            try {
+                                const res = await fetch('/api/sindicato/hojas-ruta', {
+                                    method: 'POST',
+                                    headers: headers(),
+                                    body: JSON.stringify(hojaForm)
+                                });
+                                const data = await res.json();
+                                if (res.ok) {
+                                    ultimaHoja.value = data.hoja_ruta;
+                                    mensaje.value = data.mensaje;
+                                    hojaForm.placa_js = '';
+                                } else {
+                                    mensaje.value = data.mensaje;
+                                }
+                            } catch (err) {
+                                mensaje.value = 'Error al emitir hoja de ruta.';
+                            }
+                        };
+
+                        const cargarAfiliados = async () => {
+                            pestana.value = 'afiliados';
+                            const res = await fetch('/api/sindicato/afiliados', { headers: headers() });
+                            if (res.ok) afiliados.value = await res.json();
+                        };
+
+                        const guardarAfiliado = async () => {
+                            const res = await fetch('/api/sindicato/afiliados', {
+                                method: 'POST',
+                                headers: headers(),
+                                body: JSON.stringify(afiliadoForm)
+                            });
+                            if (res.ok) {
+                                afiliadoForm.nombre_js = '';
+                                afiliadoForm.celular_js = '';
+                                cargarAfiliados();
+                                mensaje.value = 'Afiliado registrado con éxito.';
+                            }
+                        };
+
+                        const eliminarAfiliado = async (id) => {
+                            if (confirm('¿Desea eliminar este afiliado?')) {
+                                const res = await fetch(`/api/sindicato/afiliados/${id}`, { method: 'DELETE', headers: headers() });
+                                if (res.ok) cargarAfiliados();
+                            }
+                        };
+
+                        const cargarVehiculos = async () => {
+                            pestana.value = 'vehiculos';
+                            await cargarAfiliados();
+                            const res = await fetch('/api/sindicato/vehiculos', { headers: headers() });
+                            if (res.ok) vehiculos.value = await res.json();
+                        };
+
+                        const guardarVehiculo = async () => {
+                            const res = await fetch('/api/sindicato/vehiculos', {
+                                method: 'POST',
+                                headers: headers(),
+                                body: JSON.stringify(vehiculoForm)
+                            });
+                            const data = await res.json();
+                            if (res.ok) {
+                                vehiculoForm.placa_js = '';
+                                vehiculoForm.linea_js = '';
+                                vehiculoForm.id_afiliado_js = '';
+                                cargarVehiculos();
+                                mensaje.value = 'Vehículo registrado con éxito.';
+                            } else {
+                                mensaje.value = data.mensaje;
+                            }
+                        };
+
+                        const eliminarVehiculo = async (id) => {
+                            if (confirm('¿Desea eliminar este vehículo?')) {
+                                const res = await fetch(`/api/sindicato/vehiculos/${id}`, { method: 'DELETE', headers: headers() });
+                                if (res.ok) cargarVehiculos();
+                            }
+                        };
+
+                        const cargarAportesPendientes = async () => {
+                            pestana.value = 'aportes';
+                            const res = await fetch('/api/sindicato/aportes/pendientes', { headers: headers() });
+                            if (res.ok) aportesPendientes.value = await res.json();
+                        };
+
+                        const pagarAporte = async (id) => {
+                            const res = await fetch(`/api/sindicato/aportes/pagar/${id}`, { method: 'PUT', headers: headers() });
+                            if (res.ok) {
+                                cargarAportesPendientes();
+                                mensaje.value = 'Aporte cobrado con éxito.';
+                            }
+                        };
+
+                        const cargarReporte = async () => {
+                            pestana.value = 'reportes';
+                            const res = await fetch('/api/sindicato/reportes/recaudacion', { headers: headers() });
+                            if (res.ok) reporte.value = await res.json();
+                        };
+
+                        return {
+                            token, usuarioNombre, usuarioRol, pestana, mensaje,
+                            loginForm, hojaForm, afiliadoForm, vehiculoForm,
+                            ultimaHoja, afiliados, vehiculos, aportesPendientes, reporte,
+                            iniciarSesion, cerrarSesion, emitirHojaRuta,
+                            cargarAfiliados, guardarAfiliado, eliminarAfiliado,
+                            cargarVehiculos, guardarVehiculo, eliminarVehiculo,
+                            cargarAportesPendientes, pagarAporte, cargarReporte
+                        };
+                    }
+                }).mount('#app');
+    </script>
+</body>
+</html>

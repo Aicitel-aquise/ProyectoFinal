@@ -86,14 +86,17 @@
 ---
 
 ### PARTE G · Publicación en Línea con Túnel
-Para abrir el sistema desde el celular del docente:
-```bash
-# Opción 1: ngrok
-ngrok http 5000
+**🌐 URL pública activa (Cloudflare Tunnel):**
+> **https://carroll-formula-oriental-retro.trycloudflare.com**
 
-# Opción 2: Cloudflare Tunnel
-cloudflared tunnel --url http://localhost:5000
+Para reactivar el túnel en caso de que se cierre:
+```bash
+# Cloudflare Tunnel (herramienta utilizada)
+cloudflared tunnel --url http://localhost:5136
 ```
+
+La URL pública expone la misma API y frontend servidos localmente en `http://localhost:5136`.  
+El docente puede acceder desde cualquier navegador/celular sin instalación adicional.
 
 ---
 
