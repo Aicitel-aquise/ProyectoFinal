@@ -17,3 +17,6 @@ Thumbs.db
 !.vscode/settings.json
 
 tunnel_output.log
+
+~$*.docx
+*.tmp
