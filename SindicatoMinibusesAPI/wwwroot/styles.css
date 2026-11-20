@@ -34,7 +34,7 @@
 
 body {
     background-color: var(--bg-dark);
-    background-image: 
+    background-image:
         radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.12) 0%, transparent 45%),
         radial-gradient(circle at 85% 85%, rgba(157, 78, 221, 0.12) 0%, transparent 45%),
         linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
@@ -53,7 +53,10 @@ body::before {
     content: " ";
     display: block;
     position: fixed;
-    top: 0; left: 0; bottom: 0; right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
     background-size: 100% 4px;
     z-index: 9999;
@@ -91,9 +94,17 @@ body::before {
 }
 
 @keyframes radar-sweep {
-    0% { left: -100%; }
-    50% { left: 100%; }
-    100% { left: 100%; }
+    0% {
+        left: -100%;
+    }
+
+    50% {
+        left: 100%;
+    }
+
+    100% {
+        left: 100%;
+    }
 }
 
 /* Barra Superior / Header de Misión */
@@ -153,8 +164,17 @@ body::before {
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.85); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.4;
+        transform: scale(0.85);
+    }
 }
 
 /* Tipografía de Película */
@@ -188,8 +208,11 @@ body::before {
     color: #cbd5e1 !important;
 }
 
-small.text-muted, .text-muted.small, .small.text-muted {
-    color: #a5b4fc !important; /* Tono lila/azul claro de alta legibilidad en modo oscuro */
+small.text-muted,
+.text-muted.small,
+.small.text-muted {
+    color: #a5b4fc !important;
+    /* Tono lila/azul claro de alta legibilidad en modo oscuro */
     opacity: 0.95;
 }
 
@@ -208,7 +231,8 @@ small.text-muted, .text-muted.small, .small.text-muted {
     border-color: rgba(0, 243, 255, 0.25) !important;
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
     background: rgba(6, 12, 26, 0.75) !important;
     border: 1px solid rgba(0, 243, 255, 0.25) !important;
     color: #ffffff !important;
@@ -218,7 +242,8 @@ small.text-muted, .text-muted.small, .small.text-muted {
     transition: all 0.25s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     background: rgba(8, 16, 36, 0.95) !important;
     border-color: var(--neon-cyan) !important;
     box-shadow: 0 0 16px rgba(0, 243, 255, 0.4) !important;
@@ -349,7 +374,8 @@ small.text-muted, .text-muted.small, .small.text-muted {
 .metric-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 4px;
     height: 100%;
     background: var(--neon-cyan);
@@ -405,7 +431,8 @@ small.text-muted, .text-muted.small, .small.text-muted {
     color: #f8fafc !important;
 }
 
-.table-cyber td small, .table-cyber td .text-muted {
+.table-cyber td small,
+.table-cyber td .text-muted {
     color: #cbd5e1 !important;
     font-size: 0.85rem;
 }
@@ -476,6 +503,7 @@ small.text-muted, .text-muted.small, .small.text-muted {
         box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 10px rgba(255, 0, 85, 0.2);
         border-color: rgba(255, 0, 85, 0.7);
     }
+
     100% {
         box-shadow: 0 0 45px rgba(255, 0, 85, 0.9), inset 0 0 30px rgba(255, 0, 85, 0.5);
         border-color: #ff0055;
@@ -490,9 +518,19 @@ small.text-muted, .text-muted.small, .small.text-muted {
 }
 
 @keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-6deg); }
-    75% { transform: rotate(6deg); }
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-6deg);
+    }
+
+    75% {
+        transform: rotate(6deg);
+    }
 }
 
 /* Modales Futuristas */
@@ -561,9 +599,11 @@ small.text-muted, .text-muted.small, .small.text-muted {
     .hud-navbar {
         padding: 0.65rem 1rem;
     }
+
     .metric-val {
         font-size: 1.6rem;
     }
+
     .table-responsive {
         font-size: 0.85rem;
     }
@@ -636,6 +676,7 @@ small.text-muted, .text-muted.small, .small.text-muted {
         box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 10px rgba(255, 0, 85, 0.2);
         border-color: rgba(255, 0, 85, 0.7);
     }
+
     100% {
         box-shadow: 0 0 45px rgba(255, 0, 85, 0.9), inset 0 0 30px rgba(255, 0, 85, 0.5);
         border-color: #ff0055;
@@ -650,9 +691,19 @@ small.text-muted, .text-muted.small, .small.text-muted {
 }
 
 @keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-6deg); }
-    75% { transform: rotate(6deg); }
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-6deg);
+    }
+
+    75% {
+        transform: rotate(6deg);
+    }
 }
 
 /* Modales Futuristas */
@@ -721,9 +772,11 @@ small.text-muted, .text-muted.small, .small.text-muted {
     .hud-navbar {
         padding: 0.65rem 1rem;
     }
+
     .metric-val {
         font-size: 1.6rem;
     }
+
     .table-responsive {
         font-size: 0.85rem;
     }
