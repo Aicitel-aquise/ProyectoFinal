@@ -15,3 +15,5 @@ npm-debug.log*
 Thumbs.db
 .vscode/*
 !.vscode/settings.json
+
+tunnel_output.log

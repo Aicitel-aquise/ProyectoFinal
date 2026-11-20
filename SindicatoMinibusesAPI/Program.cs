@@ -96,7 +96,8 @@ if (app.Environment.IsDevelopment())
 // IMPORTANTE: CORS debe ir ANTES de autenticación
 app.UseCors("AllowAll");
 
-// IMPORTANTE: Habilitar archivos estáticos para leer la carpeta wwwroot
+// IMPORTANTE: Habilitar archivos por defecto (index.html) y estáticos para leer wwwroot
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseAuthentication();

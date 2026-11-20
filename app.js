@@ -10,22 +10,19 @@
 
 // 1. CONFIGURACIÓN DEL SERVIDOR API (.NET)
 const CONFIG_API = {
-    // Permite auto-detección del puerto si se corre desde wwwroot, o configuración personalizada
     obtenerBaseUrl() {
-        const guardada = localStorage.getItem('api_sindicato_base_url');
-        if (guardada) return guardada;
-        // Si corre desde Cloudflare Tunnel o desde la misma API (wwwroot)
-        if (window.location.origin && !window.location.origin.includes('127.0.0.1:5500') && window.location.port !== '5500') {
-            // Cloudflare Tunnel o localhost:5136 sirve el frontend
-            if (window.location.origin.includes('trycloudflare.com') || (window.location.origin.includes('localhost') && window.location.port !== '5500')) {
-                return window.location.origin;
-            }
+        // Si viene por Cloudflare Tunnel, usar esa misma URL
+        if (window.location.origin.includes('trycloudflare.com')) {
+            return window.location.origin;
         }
+        // Si viene por localhost (API sirve frontend)
+        if (window.location.port === '5136') {
+            return window.location.origin;
+        }
+        // Fallback
         return 'http://localhost:5136';
     },
-    establecerBaseUrl(url) {
-        localStorage.setItem('api_sindicato_base_url', url.trim());
-    },
+    establecerBaseUrl(url) { },
     // Endpoints estándar de la API REST .NET (SindicatoController y AuthController)
     endpoints: {
         login: '/api/auth/login',
@@ -209,6 +206,11 @@ function iniciarLoginApp() {
                 this.cargando = true;
                 this.mensajeError = '';
 
+                // Limpiar cualquier sesión anterior
+                localStorage.removeItem('jwt_token_sindicato');
+                localStorage.removeItem('usuario_sindicato');
+                localStorage.removeItem('api_sindicato_base_url');
+
                 const bodyPayload = {
                     nombre_usuario_js: this.credenciales.nombre_usuario_js.trim(),
                     password_js: this.credenciales.password_js.trim()
@@ -245,41 +247,9 @@ function iniciarLoginApp() {
                         throw new Error(msg);
                     }
                 } catch (netErr) {
-                    console.warn('API no accesible en este momento o respuesta local:', netErr);
-
-                    if (netErr.message && !netErr.message.includes('fetch')) {
-                        this.mensajeError = netErr.message;
-                        AudioFX.play('alarm');
-                        this.cargando = false;
-                        return;
-                    }
-
-                    // Fallback local con usuarios del backend si la API aún no se inició
-                    const usuariosLocales = DATOS_INICIALES.usuarios;
-                    const encontrado = usuariosLocales.find(u =>
-                        u.nombre_usuario_js.toLowerCase() === bodyPayload.nombre_usuario_js.toLowerCase() &&
-                        (u.password_js === bodyPayload.password_js || bodyPayload.password_js.length >= 4)
-                    );
-
-                    if (encontrado) {
-                        const fakeJwt = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(JSON.stringify(encontrado))}.SINDICATO_DEV_SIGNATURE`;
-                        localStorage.setItem('jwt_token_sindicato', fakeJwt);
-                        localStorage.setItem('usuario_sindicato', JSON.stringify({
-                            id_usuario_js: encontrado.id_usuario_js,
-                            nombre_usuario_js: encontrado.nombre_usuario_js,
-                            rol_js: encontrado.rol_js,
-                            nombre_js: encontrado.nombre_js
-                        }));
-
-                        AudioFX.play('success');
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 300);
-                        return;
-                    } else {
-                        this.mensajeError = 'Usuario o contraseña no válidos en el sistema del sindicato.';
-                        AudioFX.play('alarm');
-                    }
+                    console.warn('API no accesible:', netErr);
+                    this.mensajeError = '⚠️ No se pudo conectar a la API. Verifica que el backend esté corriendo en ' + this.apiBaseUrl;
+                    AudioFX.play('alarm');
                 } finally {
                     this.cargando = false;
                 }
@@ -627,14 +597,9 @@ function iniciarDashboardApp() {
                         alert(`⚠️ RECHAZADO POR LA API: ${msg}`);
                         return;
                     }
-                } catch {
-                    const nuevaHojaLocal = {
-                        id_hoja_ruta_js: Date.now(),
-                        ...payload
-                    };
-                    this.hojasRuta.unshift(nuevaHojaLocal);
-                    guardarAlmacen('hojasRuta', this.hojasRuta);
-                    this.finalizarEmisionExitosa(placa);
+                } catch (err) {
+                    AudioFX.play('alarm');
+                    alert('❌ Error de conexión con la API: ' + err.message);
                 } finally {
                     this.cargandoEmision = false;
                 }
@@ -731,11 +696,15 @@ function iniciarDashboardApp() {
                 }
 
                 const payload = {
-                    id_vehiculo_js: this.formVehiculo.id_vehiculo_js,
                     placa_js: placaFormateada,
                     linea_js: this.formVehiculo.linea_js.trim(),
                     id_afiliado_js: Number(this.formVehiculo.id_afiliado_js)
                 };
+
+                // Solo agregar ID si estamos editando
+                if (this.editandoVehiculo && this.formVehiculo.id_vehiculo_js) {
+                    payload.id_vehiculo_js = Number(this.formVehiculo.id_vehiculo_js);
+                }
 
                 try {
                     const url = `${this.apiBaseUrl}${CONFIG_API.endpoints.vehiculos}${this.editandoVehiculo ? `/${payload.id_vehiculo_js}` : ''}`;
@@ -745,16 +714,18 @@ function iniciarDashboardApp() {
                         body: JSON.stringify(payload)
                     });
 
-                    if (res.ok) await this.cargarDatos();
-                } catch {
-                    if (this.editandoVehiculo) {
-                        const idx = this.vehiculos.findIndex(v => Number(v.id_vehiculo_js) === Number(payload.id_vehiculo_js));
-                        if (idx !== -1) this.vehiculos[idx] = { ...payload };
+                    if (res.ok) {
+                        await this.cargarDatos();
                     } else {
-                        payload.id_vehiculo_js = Date.now();
-                        this.vehiculos.push(payload);
+                        const errData = await res.json().catch(() => null);
+                        AudioFX.play('alarm');
+                        alert('❌ Error: ' + (errData?.mensaje || `Código ${res.status}`));
+                        return;
                     }
-                    guardarAlmacen('vehiculos', this.vehiculos);
+                } catch (err) {
+                    AudioFX.play('alarm');
+                    alert('❌ Error de conexión: ' + err.message);
+                    return;
                 }
 
                 AudioFX.play('success');
@@ -798,11 +769,14 @@ function iniciarDashboardApp() {
             async guardarAfiliado() {
                 AudioFX.play('click');
                 const payload = {
-                    id_afiliado_js: this.formAfiliado.id_afiliado_js,
                     nombre_js: this.formAfiliado.nombre_js.trim(),
-                    celular_js: this.formAfiliado.celular_js.trim(),
-                    fecha_registro_js: new Date().toISOString()
+                    celular_js: this.formAfiliado.celular_js.trim()
                 };
+
+                // Solo agregar ID si estamos editando
+                if (this.editandoAfiliado && this.formAfiliado.id_afiliado_js) {
+                    payload.id_afiliado_js = Number(this.formAfiliado.id_afiliado_js);
+                }
 
                 try {
                     const url = `${this.apiBaseUrl}${CONFIG_API.endpoints.afiliados}${this.editandoAfiliado ? `/${payload.id_afiliado_js}` : ''}`;
@@ -812,16 +786,18 @@ function iniciarDashboardApp() {
                         body: JSON.stringify(payload)
                     });
 
-                    if (res.ok) await this.cargarDatos();
-                } catch {
-                    if (this.editandoAfiliado) {
-                        const idx = this.afiliados.findIndex(a => Number(a.id_afiliado_js) === Number(payload.id_afiliado_js));
-                        if (idx !== -1) this.afiliados[idx] = { ...this.afiliados[idx], ...payload };
+                    if (res.ok) {
+                        await this.cargarDatos();
                     } else {
-                        payload.id_afiliado_js = Date.now();
-                        this.afiliados.push(payload);
+                        const errData = await res.json().catch(() => null);
+                        AudioFX.play('alarm');
+                        alert('❌ Error: ' + (errData?.mensaje || `Código ${res.status}`));
+                        return;
                     }
-                    guardarAlmacen('afiliados', this.afiliados);
+                } catch (err) {
+                    AudioFX.play('alarm');
+                    alert('❌ Error de conexión: ' + err.message);
+                    return;
                 }
 
                 AudioFX.play('success');
