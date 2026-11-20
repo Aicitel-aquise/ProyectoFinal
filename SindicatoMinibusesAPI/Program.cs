@@ -84,11 +84,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (app.Environment.IsDevelopment())
+// Habilitar Swagger siempre para facilitar la evaluación
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sindicato Minibuses API v1");
+    c.RoutePrefix = "swagger";
+});
 
 // NOTA: HttpsRedirection desactivado en desarrollo para permitir HTTP desde Live Server y Cloudflare
 // app.UseHttpsRedirection();
@@ -104,5 +106,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Mostrar enlaces directamente en la consola de la terminal
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine();
+    Console.WriteLine("==================================================================");
+    Console.WriteLine("  🚀 SISTEMA SINDICATO DE MINIBUSES - BACKEND INICIADO CON EXITO");
+    Console.WriteLine("  📄 ENLACE SWAGGER:   http://localhost:5136/swagger");
+    Console.WriteLine("  🌐 ENLACE FRONTEND:  http://localhost:5136/index.html");
+    Console.WriteLine("==================================================================");
+    Console.WriteLine();
+    Console.ResetColor();
+});
 
 app.Run();
