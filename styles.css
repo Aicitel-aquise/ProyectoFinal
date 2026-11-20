@@ -4,6 +4,10 @@
    ========================================================================== */
 
 :root {
+    --bs-secondary-color: #cbd5e1 !important;
+    --bs-secondary-color-rgb: 203, 213, 225 !important;
+    --bs-body-color: #f8fafc !important;
+    --bs-body-color-rgb: 248, 250, 252 !important;
     --bg-dark: #070b14;
     --bg-card: rgba(13, 21, 38, 0.82);
     --bg-card-hover: rgba(18, 30, 56, 0.92);
@@ -21,7 +25,7 @@
     --border-glass: rgba(0, 243, 255, 0.22);
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
+    --text-muted: #cbd5e1;
     --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
     --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
@@ -199,21 +203,52 @@ body::before {
     text-shadow: 0 0 14px var(--neon-danger-glow);
 }
 
-/* Tipografía y Mejoras de Contraste y Legibilidad */
-.text-muted {
-    color: #94a3b8 !important;
-}
-
-.text-secondary {
-    color: #cbd5e1 !important;
-}
-
+/* Tipografía y Mejoras Extremas de Contraste y Legibilidad */
+.text-muted,
+[class*="text-muted"],
+p.text-muted,
+div.text-muted,
+span.text-muted,
 small.text-muted,
 .text-muted.small,
 .small.text-muted {
-    color: #a5b4fc !important;
-    /* Tono lila/azul claro de alta legibilidad en modo oscuro */
-    opacity: 0.95;
+    color: #cbd5e1 !important;
+    --bs-text-opacity: 1 !important;
+    opacity: 1 !important;
+}
+
+.text-secondary {
+    color: #e2e8f0 !important;
+}
+
+/* Tarjetas de Estadísticas / Métricas HUD */
+.metric-card .text-muted,
+.metric-card small,
+.metric-card .text-uppercase,
+.metric-card div.small {
+    color: #f1f5f9 !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.8px;
+    opacity: 1 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Subtítulos debajo de títulos en paneles */
+.glass-panel p.text-muted,
+.glass-panel .small.text-muted,
+.glass-panel p.small {
+    color: #93c5fd !important; /* Celeste suave brillante, 100% legible */
+    font-size: 0.95rem !important;
+    opacity: 1 !important;
+}
+
+/* Barra Superior: reloj y texto de ubicación */
+.hud-navbar .text-muted,
+.hud-navbar .font-mono,
+.hud-navbar .font-mono span {
+    color: #e2e8f0 !important;
+    opacity: 1 !important;
 }
 
 /* Form Controls Holográficos */
