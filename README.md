@@ -1,226 +1,186 @@
-# 🚐 SISTEMA DE CONTROL Y GESTIÓN OPERATIVA - SINDICATO DE MINIBUSES
-### Examen Final Práctico · INS-600 Ingeniería de Software
-**Estudiante:** Leticia Aquise Taco  
-**Carrera:** Informática Industrial · I.T. Escuela Industrial Superior Pedro Domingo Murillo  
-**Docente:** Lic. Erik Huallpa Aruquipa  
-**Propuesta Asignada:** Propuesta 15 · Sindicato de Minibuses (La Paz - El Alto)  
+# 🛰️ AETHER LAB // Control de Préstamos de Equipos y Herramientas
+> **Sistema Táctico de Inventario, Gestión de Préstamos y Evaluación de Retorno de Instrumental de Precisión.**
+
+<div align="center">
+
+[![Node.js](https://img.shields.io/badge/Node.js-v22+-00E5FF.svg?style=for-the-badge&logo=node.js&logoColor=black)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-v4.21-00E5FF.svg?style=for-the-badge&logo=express&logoColor=black)](https://expressjs.com/)
+[![SQL Server](https://img.shields.io/badge/Microsoft_SQL_Server-2022-CC292B.svg?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/sql-server)
+[![Security](https://img.shields.io/badge/Security-bcrypt%20%2B%20JWT%20RBAC-00E676.svg?style=for-the-badge)](https://jwt.io/)
+[![COCOMO II](https://img.shields.io/badge/COCOMO_II-Live_Audited-B388FF.svg?style=for-the-badge)](#-7-estimación-métrica-cocomo-ii)
+[![License](https://img.shields.io/badge/License-MIT-FFB300.svg?style=for-the-badge)](#)
+
+**Autora:** Leticia Aquise Taco &nbsp;|&nbsp; **Materia:** INS600 — Examen Práctico / Proyecto Final &nbsp;|&nbsp; **Año:** 2026
+
+[🚀 Inicio Rápido](#-5-inicio-rápido) • [🏛️ Arquitectura](#-2-arquitectura-en-3-capas) • [🛡️ Reglas de Negocio](#-3-reglas-de-negocio-obligatorias) • [🗄️ Base de Datos](#-4-base-de-datos-sql-server) • [📐 COCOMO II](#-7-estimación-métrica-cocomo-ii) • [📄 Documentación Word](#-8-entregables-incluidos)
+
+</div>
 
 ---
 
-## 🌟 1. FICHA TÉCNICA Y ARQUITECTURA DEL SISTEMA
+## 📖 1. Descripción del Proyecto
 
-| Capa / Componente | Tecnología | Descripción |
-|---|---|---|
-| **Backend REST API** | C# · ASP.NET Core Web API (.NET 10) | Endpoints RESTful con Entity Framework Core, validaciones de reglas de negocio y Swagger UI. |
-| **Base de Datos** | Microsoft SQL Server Express | Instancia `LETICIA\SQLEXPRESS`, BD `SindicatoMinibusesDB` con integridad referencial estricta. |
-| **Frontend Web** | Vue.js 3 (CDN Proactivo) + Bootstrap 5 | Interfaz táctil reactiva, diseño Glassmorphism HUD táctico y sintetizador Web Audio FX. |
-| **Seguridad** | JWT (JSON Web Tokens) + BCrypt | Roles (`Secretario` y `Controlador`), contraseñas encriptadas con algoritmo Blowfish (BCrypt). |
-| **Nomenclatura Estricta** | Sufijo Obligatorio `_js` | Todas las tablas, columnas SQL, propiedades en C# y JSON llevan el sufijo `_js`. |
-| **Túnel y Acceso Remoto** | Cloudflare Tunnel (`cloudflared`) | Publicación segura HTTPS sin abrir puertos ni configuraciones en el router. |
-| **Empaquetado** | Inno Setup 6 | Instalador `.exe` autoejecutable para Windows con script `.iss`. |
+**AETHER LAB** es una plataforma web full-stack de grado de ingeniería diseñada bajo el patrón de **Arquitectura en 3 Capas**. Automatiza y garantiza el control estricto de préstamos, trazabilidad y evaluación de retorno de herramientas e instrumental técnico de alta precisión (osciloscopios, fuentes de poder, multímetros de banco, estaciones de soldadura, analizadores lógicos, cámaras termográficas e impresoras 3D).
 
----
-
-## 🚀 2. INICIO RÁPIDO CON 1 SOLO CLIC
-
-Para ejecutar todo el sistema automáticamente (Backend API + Frontend + Túnel Cloudflare para celulares):
-
-1. Abre la carpeta del proyecto.
-2. Haz doble clic en **`INICIAR_SISTEMA.bat`**.
-3. La consola iniciará la API y te mostrará el enlace público para el celular del docente:
-   - **Local:** `http://localhost:5136/index.html`
-   - **Documentación Swagger:** `http://localhost:5136/swagger`
-   - **Enlace Remoto (Celulares/Docente):** `https://[subdominio].trycloudflare.com`
-
-### 🔑 Credenciales Oficiales de Evaluación:
-| Usuario (`nombre_usuario_js`) | Contraseña (`password_js`) | Rol (`rol_js`) | Permisos y Alcance |
-|---|---|---|---|
-| **Honorato Ticona** | `secretario123` | **Secretario** (Hacienda) | Acceso total: Hojas, Cobros, Padrón Afiliados, Vehículos y Reporte de Recaudación. |
-| **Irma Calle** | `controlador123` | **Controlador** (Parada) | Acceso operativo: Emisión instantánea de Hojas de Ruta y Cobro de Aportes. |
-
-*(La pantalla de inicio cuenta con botones de acceso rápido con 1 clic para ambos usuarios).*
+### 🌌 Estética Visual Cinematográfica HUD
+- **Modo Oscuro Profundo:** Fondo espacial táctico `#070B14` con mallas de radar tenues.
+- **Glassmorphism Táctico:** Superficies translúcidas con desenfoque de fondo (`backdrop-filter: blur(14px)`).
+- **Acentos Luminosos:** Cian eléctrico `#00E5FF`, esmeralda `#00E676`, ámbar `#FFB300` y coral `#FF1744`.
+- **Audio Procedural Táctico:** Retroalimentación acústica interactiva sintetizada mediante **Web Audio API** nativo (sin dependencias de archivos `.mp3`).
+- **Modo Acceso Rápido:** Botones de demostración en 1-clic con 4 perfiles preconfigurados para evaluación en vivo.
 
 ---
 
-## 📑 3. RESOLUCIÓN DETALLADA DEL EXAMEN (PARTES A - J)
-
----
-
-### PARTE A · Análisis del Problema y Requerimientos
-
-#### A.1 Stakeholders y Expectativas:
-1. **Honorato Ticona (Secretario de Hacienda):**
-   - Requiere mantener actualizado el padrón sindical de afiliados y sus minibuses asignados.
-   - Necesita consultar la recaudación del día en tiempo real y conocer qué afiliados tienen deudas acumuladas.
-2. **Irma Calle (Controladora de Parada):**
-   - Requiere emitir la hoja de ruta en cuestión de segundos desde su teléfono celular.
-   - Necesita que el sistema bloquee automáticamente a minibuses morosos y registrar pagos sin demoras.
-3. **Afiliados y Choferes del Sindicato:**
-   - Esperan que su aporte diario reglamentario (Bs 10.00) sea registrado de forma transparente para evitar cobros dobles y garantizar su derecho a trabajar en ruta.
-
-#### A.2 Requisitos Funcionales (RF):
-- **RF-01 (Autenticación y Autorización por Roles):** Login seguro mediante JWT discriminando privilegios entre Secretario y Controlador.
-- **RF-02 (Gestión del Padrón Sindical - CRUD):** Mantenimiento completo de Afiliados (nombre, celular) y Vehículos (placa, línea, afiliado dueño).
-- **RF-03 (Emisión de Hojas de Ruta - Proceso Central):** Registro de la hoja diaria de un vehículo validando tarifa reglamentaria fija de Bs 10.00 y condición de pago (`Pagado` o `Pendiente`).
-- **RF-04 (Cobro Rápido de Aportes Pendientes):** Interfaz ágil para cancelar deudas pendientes con actualización inmediata en el saldo de recaudación.
-- **RF-05 (Reporte Consolidado de Hacienda):** Visualización del total recaudado en el día, total pendiente por cobrar y detalle desglosado por afiliado y minibus.
-
-#### A.3 Requisitos No Funcionales (RNF):
-- **RNF-01 (Diseño Móvil First y Ergonomía):** Pantallas optimizadas para teléfonos móviles táctiles en paradas de minibuses (tiempo de registro < 3 segundos).
-- **RNF-02 (Seguridad Criptográfica):** Almacenamiento de contraseñas con salado criptográfico BCrypt y protección de endpoints con Bearer Token JWT.
-- **RNF-03 (Disponibilidad y CORS Abierto):** Configuración de políticas CORS `AllowAll` para interoperabilidad multiplataforma.
-
-#### A.4 Reglas de Negocio Programadas (RN):
-- **RN-01 (Placa Única Case-Insensitive):** No pueden existir dos minibuses con la misma placa registrada en el sindicato, sin importar si se escribe en mayúsculas o minúsculas.
-- **RN-02 (Límite de Una Hoja Diaria por Minibús):** Un vehículo no puede recibir más de una hoja de ruta en la misma fecha calendario.
-- **RN-03 (Bloqueo Automático por Morosidad - 3+ Deudas):** Se bloquea la emisión de hoja de ruta a cualquier vehículo que acumule 3 o más aportes con estado `Pendiente`. El sistema emite alarma sonora y alerta visual en pantalla.
-- **RN-04 (Cobro Único de Aporte):** Un aporte marcado como `Pagado` queda bloqueado y no puede ser cobrado nuevamente.
-
----
-
-### PARTE B · Arquitectura Técnica y Endpoints REST (.NET)
-
-La API está estructurada en controladores dedicados con inyección de dependencias:
+## 🏛️ 2. Arquitectura en 3 Capas
 
 ```
-SindicatoMinibusesAPI/
-├── Controllers/
-│   ├── AuthController.cs          --> Login JWT y generación de tokens seguros
-│   ├── SindicatoController.cs     --> CRUD Afiliados, Vehículos, Hojas y Reporte
-│   └── HojasRutaController.cs     --> Listado y proyección detallada
-├── Data/
-│   └── AppDbContext.cs            --> Contexto EF Core y mapeo de tablas _js
-├── Models/
-│   ├── Usuario.cs, Afiliado.cs, Vehiculo.cs, HojaRuta.cs, Aporte.cs
-└── wwwroot/                       --> Frontend distribuido listo para usar
-```
-
-#### Catálogo de Endpoints de la API:
-| Método | Endpoint | Descripción | Rol Autorizado |
-|---|---|---|---|
-| `POST` | `/api/auth/login` | Autentica credenciales y emite Token JWT de 8 horas | Público |
-| `GET` | `/api/sindicato/vehiculos` | Lista todos los minibuses y sus dueños | Secretario / Controlador |
-| `POST` | `/api/sindicato/vehiculos` | Registra vehículo validando RN-01 (Placa única) | Solo Secretario |
-| `PUT` | `/api/sindicato/vehiculos/{id}` | Actualiza datos del vehículo | Solo Secretario |
-| `DELETE`| `/api/sindicato/vehiculos/{id}` | Elimina vehículo del padrón | Solo Secretario |
-| `GET` | `/api/sindicato/afiliados` | Lista todos los afiliados y teléfonos | Secretario / Controlador |
-| `POST` | `/api/sindicato/afiliados` | Registra nuevo afiliado | Solo Secretario |
-| `PUT` | `/api/sindicato/afiliados/{id}` | Edita afiliado | Solo Secretario |
-| `DELETE`| `/api/sindicato/afiliados/{id}` | Elimina afiliado | Solo Secretario |
-| `GET` | `/api/hojasruta` | Lista hojas de ruta emitidas con datos del vehículo | Ambos Roles |
-| `POST` | `/api/sindicato/hojas-ruta` | Emite hoja validando RN-02 y RN-03 (Proceso Central) | Ambos Roles |
-| `PUT` | `/api/sindicato/aportes/pagar/{id}`| Cobra aporte pendiente validando RN-04 | Ambos Roles |
-| `GET` | `/api/sindicato/reportes/recaudacion`| Genera métricas de caja y deudas por afiliado | Solo Secretario |
-
----
-
-### PARTE C · Base de Datos Relacional (SQL Server)
-
-El script SQL completo se encuentra en [`database_sindicato_minibuses.sql`](database_sindicato_minibuses.sql).
-
-#### Diagrama de Entidad-Relación Lógico:
-```
-[Usuarios]
-  id_usuario_js (PK)
-  nombre_usuario_js
-  password_hash_js
-  rol_js
-  nombre_js
-
-[Afiliados] (1) <─────── (N) [Vehiculos] (1) <─────── (N) [HojasRuta]
-  id_afiliado_js (PK)          id_vehiculo_js (PK)          id_hoja_ruta_js (PK)
-  nombre_js                    placa_js (UNIQUE)            id_vehiculo_js (FK)
-  celular_js                   linea_js                     fecha_emision_js
-                               id_afiliado_js (FK)          monto_js (Bs 10.00)
-                                                            aporte_pagado_js (BIT)
-                                                            nombre_controlador_js
+┌────────────────────────────────────────────────────────────────────────┐
+│                      CAPA 1: PRESENTACIÓN (UI/UX)                      │
+│   • Dashboard HUD con KPIs en Tiempo Real                              │
+│   • Catálogo Interactivo con Búsqueda y Filtros por Estado/Categoría   │
+│   • Consola Transaccional de Préstamos y Devolución con Inspección     │
+│   • Directorio RBAC y Auditoría Métrica COCOMO II                      │
+│   Tecnologías: HTML5 Semántico + CSS3 Variables + Vanilla JS Moderno   │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTP / REST / JSON (Bearer JWT)
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                  CAPA 2: LÓGICA DE NEGOCIO / CONTROLADOR               │
+│   Node.js + Express 4.x                                                │
+│   • Rutas API REST: /api/auth, /api/equipos, /api/prestamos, /metricas │
+│   • Middleware RBAC: Control de acceso basado en roles                 │
+│   • Seguridad Criptográfica: Encriptación con bcrypt (salt cost 10)    │
+│   • Motor de Reglas: Validación atómica de disponibilidad y retorno    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Consultas Transaccionales (ACID)
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                    CAPA 3: ACCESO A DATOS (SQL RELACIONAL)             │
+│   Microsoft SQL Server (LETICIA\SQLEXPRESS) + SQLite Nativo Node 22   │
+│   • Tablas: usuarios, equipos, prestamos, historial_estados            │
+│   • Integridad: PRIMARY KEY, FOREIGN KEY, CHECK Constraints, Índices   │
+│   • Script único: AETHER_LAB_SQLSERVER.sql                             │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### PARTE D · Control de Versiones Git y Flujo de Ramas
+## 🛡️ 3. Reglas de Negocio Obligatorias
 
-El repositorio cuenta con la estructura exigida en el examen, incluyendo la rama `feature/proceso-central` mergeada en `main`:
+| # | Regla de Negocio | Comportamiento del Sistema |
+| :-: | :--- | :--- |
+| **01** | **Préstamo Exclusivo de Equipos Disponibles** | Un equipo **solo puede prestarse si su estado es `DISPONIBLE`**. Si está `PRESTADO`, `EN_MANTENIMIENTO` o `DANADO`, la API rechaza la operación con código HTTP 400 y mensaje de alerta. |
+| **02** | **Transición Automática a Préstamo** | Al aprobarse el préstamo, el equipo pasa automáticamente a estado **`PRESTADO`** dentro de una transacción atómica, registrándose la fecha, solicitante y fecha límite. |
+| **03** | **Retorno con Evaluación Técnica** | Al registrar la devolución, se exige reportar la condición física/técnica del equipo:<br>• **`OPERATIVO`** $\rightarrow$ Pasa a **`DISPONIBLE`** (habilitado de inmediato).<br>• **`CON OBSERVACIÓN`** $\rightarrow$ Pasa a **`EN MANTENIMIENTO`** (**bloqueado** para préstamos).<br>• **`DAÑADO`** $\rightarrow$ Pasa a **`DAÑADO`** (**bloqueado** hasta peritaje/reparación). |
+| **04** | **Pista de Auditoría Técnica** | Cada cambio de estado manual o transaccional se asienta en la tabla `historial_estados` con sello de tiempo, responsable y motivo. |
 
-```bash
-# Historial de commits verificable con git log:
-* 57a4d7b Fix: tunel Cloudflare activo, URL publica generada y README actualizado con parte G
-* 0d26b3e Pruebas, documento del examen e instalador
-* 71b1b43 Frontend en Vue.js, Angular o React conectado a la API
-*   030c6f8 Merge branch 'feature/proceso-central' en main
-|\  
-| * 369dab2 Proceso central y reglas de negocio, en la rama feature
-|/  
-* 1d481c7 API con login y mantenimientos
-* 16ffc57 Modelo de datos y migraciones
-* 60c5e9e Proyecto creado, con .gitignore y README
+---
+
+## 🗄️ 4. Base de Datos SQL Server
+
+El proyecto incluye el script único [AETHER_LAB_SQLSERVER.sql](AETHER_LAB_SQLSERVER.sql) configurado para **Microsoft SQL Server (`LETICIA\SQLEXPRESS`)**:
+
+```sql
+-- Ejecutar en SQL Server Management Studio (SSMS) conectándose a LETICIA\SQLEXPRESS:
+USE AetherLab;
+GO
+
+SELECT 'Usuarios Registrados' AS Entidad, COUNT(*) AS Total FROM dbo.usuarios
+UNION ALL
+SELECT 'Equipos en Catálogo', COUNT(*) FROM dbo.equipos
+UNION ALL
+SELECT 'Préstamos Registrados', COUNT(*) FROM dbo.prestamos
+UNION ALL
+SELECT 'Historial de Estados', COUNT(*) FROM dbo.historial_estados;
+GO
+```
+
+### Diccionario de Datos
+
+| Tabla | Claves y Restricciones | Propósito |
+| :--- | :--- | :--- |
+| **`usuarios`** | `PK id (IDENTITY)`, `UNIQUE email`, `CHECK (rol IN ('ADMIN','ENCARGADO','OPERADOR','USUARIO'))` | Credenciales encriptadas con bcrypt y roles RBAC. |
+| **`equipos`** | `PK id (IDENTITY)`, `UNIQUE codigo`, `CHECK (estado IN ('DISPONIBLE','PRESTADO','EN_MANTENIMIENTO','DANADO','DE_BAJA'))` | Instrumental técnico de laboratorio con especificaciones. |
+| **`prestamos`** | `PK id (IDENTITY)`, `UNIQUE codigo_prestamo`, `FK equipo_id`, `FK usuario_id`, `CHECK (estado_prestamo IN ('ACTIVO','DEVUELTO','VENCIDO'))` | Transacciones de préstamo, plazos y condiciones de retorno. |
+| **`historial_estados`** | `PK id (IDENTITY)`, `FK equipo_id (ON DELETE CASCADE)`, `FK usuario_id` | Trazabilidad y no-repudio de cambios de condición. |
+
+---
+
+## 🚀 5. Inicio Rápido
+
+### Requisitos
+- **Node.js:** v18+ (Recomendado Node v22.x).
+- **SQL Server:** Instancia `LETICIA\SQLEXPRESS` (o SQLite integrado de cero configuración).
+- **Navegador:** Chrome, Edge, Firefox o Brave.
+
+### Instalación y Ejecución
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/Aicitel-aquise/ProyectoFinal.git
+   cd ProyectoFinal
+   ```
+
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
+
+3. **Iniciar el servidor:**
+   ```bash
+   npm start
+   ```
+
+4. **Acceder a la aplicación:**
+   Abrir en el navegador: 👉 **`http://localhost:3000`**
+
+---
+
+## 🔑 6. Credenciales de Demostración (1-Clic)
+
+La pantalla principal cuenta con tarjetas de acceso rápido para ingresar con 1 solo clic:
+
+| Rol | Correo Institucional | Contraseña | Privilegios en el Sistema |
+| :--- | :--- | :--- | :--- |
+| **👑 ADMIN** | `admin@aetherlab.io` | `Admin123!` | Control Total, CRUD Equipos, Roles, Override Estados |
+| **🔧 ENCARGADO** | `encargado@aetherlab.io` | `Encargado123!` | Alta/Edición Equipos, Recepción Devoluciones |
+| **⚡ OPERADOR** | `operador@aetherlab.io` | `Operador123!` | Registro de Préstamos, Devoluciones, Catálogo |
+| **🔬 INVESTIGADOR** | `investigador@aetherlab.io` | `Usuario123!` | Consulta de Inventario y Solicitudes Propias |
+
+---
+
+## 📐 7. Estimación Métrica COCOMO II
+
+El sistema incorpora en su pestaña **05 // ESTIMACIÓN COCOMO II** un motor de auditoría dinámico sobre el árbol de código fuente:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│               PARÁMETROS DEL MODELO COCOMO II                  │
+├──────────────────────────────┬─────────────────────────────────┤
+│ Líneas de Código Neto (SLOC) │ ~5,400 SLOC                     │
+│ Tamaño del Sistema (KSLOC)   │ 5.40 KSLOC                      │
+│ Modo de Proyecto             │ Semi-Detached (Sistemas Web)    │
+│ Ecuación de Esfuerzo (PM)    │ PM = 2.94 × (KSLOC)^1.05        │
+│ Esfuerzo Estimado            │ ~17.3 Persona-Meses (PM)        │
+│ Ecuación de Tiempo (TDEV)    │ TDEV = 3.67 × (PM)^0.28         │
+│ Tiempo de Desarrollo Óptimo  │ ~8.2 Meses Calendario           │
+│ Personal Promedio            │ 2.1 Ingenieros                  │
+└──────────────────────────────┴─────────────────────────────────┘
 ```
 
 ---
 
-### PARTE E · Frontend Reactivo (Vue.js 3 + Glassmorphism HUD)
+## 📄 8. Entregables Incluidos en el Repositorio
 
-- **Tecnología:** Vue.js 3 Composition/Options API cargado vía CDN ultraligero sin sobrecargar node_modules.
-- **Estética:** Glassmorphism futurista táctico con contraste optimizado para lectura en pantallas móviles bajo luz solar.
-- **Audio Sintetizado:** Efectos sonoros integrados con Web Audio API (`click`, `success`, `alarm` para bloqueos).
-- **Responsive:** Adaptable a teléfonos móviles (controlador en parada) y monitores de escritorio (secretario).
-
----
-
-### PARTE F · Matriz de Casos de Prueba (Proceso Central y Reglas)
-
-| Caso | Escenario Evaluado | Datos de Entrada | Resultado Esperado | Resultado en el Sistema | Estado |
-|:---:|---|---|---|---|:---:|
-| **CP-01** | Emisión exitosa con aporte pagado | Placa: `2345-KLP`, Pago: `Pagado` | Hoja registrada con estado Pagado (+Bs 10 en caja) | Registrado exitosamente | **APROBADO** |
-| **CP-02** | Emisión exitosa con aporte al fiado | Placa: `1122-XZA`, Pago: `Pendiente` | Hoja registrada con estado Pendiente (+Bs 10 por cobrar) | Registrado con deuda | **APROBADO** |
-| **CP-03** | **RN-03: Bloqueo por 3 o más deudas** | Placa: `9988-MNO` (3 deudas previas) | Bloqueo automático, Error 400 y Alarma en pantalla | Bloqueado con alerta roja | **APROBADO** |
-| **CP-04** | **RN-02: Bloqueo por emisión duplicada en el día** | Placa: `2345-KLP` (ya emitida hoy) | Bloqueo con mensaje de una sola hoja por día | Bloqueado con alerta | **APROBADO** |
-| **CP-05** | **RN-04: Cobro de aporte pendiente** | Hoja ID `#103` (Pendiente) | Cambia a `Pagado`, se suma a recaudación | Cobrado con éxito | **APROBADO** |
-| **CP-06** | **RN-01: Registro de placa duplicada** | Placa: `2345-klp` (ya existente) | Rechazo por placa existente (case-insensitive) | Rechazado con mensaje | **APROBADO** |
+- 📘 **[INFORME_TECNICO_PRACTICAS_AETHER_LAB.docx](INFORME_TECNICO_PRACTICAS_AETHER_LAB.docx):** Informe formal en formato Microsoft Word con manual de prácticas campo por campo y tablas técnicas.
+- 📝 **[INFORME_TECNICO.md](INFORME_TECNICO.md):** Versión Markdown completa con diagramas de flujo y arquitectura.
+- 🗄️ **[AETHER_LAB_SQLSERVER.sql](AETHER_LAB_SQLSERVER.sql):** Script único autoejecutable para Microsoft SQL Server (`LETICIA\SQLEXPRESS`).
+- 🖥️ **`frontend/`:** Interfaz web táctica HUD cinematográfica (`index.html`, `styles.css`, `app.js`).
+- ⚙️ **`backend/`:** Servidor Express, middleware RBAC, rutas REST y motor de base de datos.
 
 ---
 
-### PARTE G · Publicación en Línea con Túnel
+<div align="center">
 
-El sistema se publica mediante **Cloudflare Tunnel (`cloudflared`)**, permitiendo al docente evaluar el sistema desde su propio dispositivo móvil:
+**AETHER LAB // Engineered for Mission-Critical Laboratory Operations**  
+*Desarrollado por Leticia Aquise Taco — 2026*
 
-```bash
-# Comando ejecutado automáticamente por INICIAR_SISTEMA.bat:
-cloudflared tunnel --url http://localhost:5136
-```
-
----
-
-### PARTE H · Instalador de Escritorio para Windows
-
-El instalador para Windows se compila con **Inno Setup** utilizando el archivo de configuración [`instalador_sindicato.iss`](instalador_sindicato.iss). Genera un paquete autoejecutable que instala el sistema y crea los accesos directos de escritorio.
-
----
-
-### PARTE I · Manual de Usuario Breve
-
-1. **Como Controlador (Irma Calle):**
-   - Entra al sistema con un clic en el botón **Irma Calle**.
-   - En la pestaña **Emisión Hojas de Ruta**, elige el minibús por placa.
-   - Si el vehículo tiene deudas, el sistema te avisará de inmediato.
-   - Selecciona si paga ahora o queda pendiente y presiona **Emitir Hoja de Ruta**.
-   - En la pestaña **Cobro de Aportes**, puedes cobrar las deudas pendientes con el botón verde.
-
-2. **Como Secretario de Hacienda (Honorato Ticona):**
-   - Entra con el botón **Honorato Ticona**.
-   - Puedes ver todas las pestañas de Irma más:
-   - **Vehículos:** Para agregar o editar minibuses del sindicato.
-   - **Afiliados:** Para registrar nuevos choferes o dueños con su número celular.
-   - **Reporte de Hacienda:** Muestra la recaudación total del día, montos por cobrar y estado de cada afiliado.
-
----
-
-### PARTE J · Conclusión y Criterios Cumplidos
-
-El proyecto cubre al 100% las partes A a J del Examen Final INS-600:
-- ✅ Backend en C# ASP.NET Core con SQL Server y nomenclatura `_js`.
-- ✅ Frontend moderno en Vue.js conectado a la API con diseño responsive.
-- ✅ Reglas de negocio programadas y validadas tanto en el Backend como en la interfaz.
-- ✅ Roles diferenciados con tokens JWT.
-- ✅ Repositorio Git con commits estructurados y rama feature mergeada.
-- ✅ Publicación en línea mediante Cloudflare Tunnel y script `.bat` automatizado.
+</div>

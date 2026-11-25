@@ -1,0 +1,28 @@
+{
+  "name": "aether-lab-control",
+  "version": "1.0.0",
+  "description": "AETHER LAB // Control Táctico de Préstamos de Equipos y Herramientas",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "seed": "node backend/database.js --seed"
+  },
+  "keywords": [
+    "aether-lab",
+    "control-prestamos",
+    "laboratorio",
+    "ingenieria",
+    "sql"
+  ],
+  "author": "Aether Lab Systems",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "docx": "^9.16.0",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mssql": "^12.8.1"
+  }
+}

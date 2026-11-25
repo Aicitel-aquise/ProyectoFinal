@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER LAB // Control de Préstamos de Equipos y Herramientas</title>
+    <!-- Fuentes Google Fonts para estética técnica cinematográfica -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 95,25 95,75 50,95 5,75 5,25' fill='%23070B14' stroke='%2300E5FF' stroke-width='6'/><circle cx='50' cy='50' r='18' fill='%2300E5FF'/></svg>">
+</head>
+<body class="tactical-hud">
+    <!-- Fondo con cuadrícula de radar y haces de luz tenues -->
+    <div class="grid-overlay"></div>
+    <div class="ambient-glow cyan-glow"></div>
+    <div class="ambient-glow amber-glow"></div>
+
+    <!-- Barra de Estado Superior / Header Táctico -->
+    <header class="tactical-header">
+        <div class="header-brand">
+            <div class="brand-emblem">
+                <div class="hexagon-inner"></div>
+                <div class="pulse-beacon"></div>
+            </div>
+            <div class="brand-text">
+                <div class="brand-title">AETHER <span class="cyan-accent">LAB</span> <span class="version-tag">2026</span></div>
+                <div class="brand-subtitle">SISTEMA DE CONTROL DE PRÉSTAMOS DE EQUIPOS Y HERRAMIENTAS</div>
+            </div>
+        </div>
+
+        <!-- Telemetría en tiempo real -->
+        <div class="header-telemetry">
+            <div class="telemetry-item">
+                <span class="telemetry-label">ESTADO DEL SISTEMA</span>
+                <span class="telemetry-val text-emerald"><span class="live-dot pulse"></span> EN LÍNEA // OPERATIVO</span>
+            </div>
+            <div class="telemetry-item">
+                <span class="telemetry-label">RELOJ UTC-4</span>
+                <span class="telemetry-val mono-font" id="liveClock">00:00:00</span>
+            </div>
+            <div class="telemetry-item">
+                <span class="telemetry-label">OPERADOR ACTIVO</span>
+                <span class="telemetry-val" id="headerUserLabel">INVITADO (NO SESIÓN)</span>
+            </div>
+        </div>
+
+        <!-- Controles de Usuario y Demostración Rápida -->
+        <div class="header-actions">
+            <!-- Botón desplegable para Demo Rápida -->
+            <div class="quick-demo-wrapper">
+                <button class="btn btn-outline-cyan btn-sm" id="btnQuickDemoToggle" title="Autocompletar credenciales para demostración en vivo">
+                    <span class="btn-icon">⚡</span> DEMO RÁPIDA
+                </button>
+                <div class="quick-demo-dropdown" id="quickDemoMenu">
+                    <div class="dropdown-header">SELECCIONAR CREDENCIAL DE PRUEBA</div>
+                    <button class="demo-select-btn" data-email="admin@aetherlab.io" data-pass="Admin123!" data-rol="ADMIN">
+                        <span class="badge badge-admin">ADMIN</span> Dra. Elena Vasquez (SuperAdmin)
+                    </button>
+                    <button class="demo-select-btn" data-email="encargado@aetherlab.io" data-pass="Encargado123!" data-rol="ENCARGADO">
+                        <span class="badge badge-encargado">ENCARGADO</span> Ing. Marco Altamirano (Taller)
+                    </button>
+                    <button class="demo-select-btn" data-email="operador@aetherlab.io" data-pass="Operador123!" data-rol="OPERADOR">
+                        <span class="badge badge-operador">OPERADOR</span> Téc. Carlos Mendoza (Pruebas)
+                    </button>
+                    <button class="demo-select-btn" data-email="investigador@aetherlab.io" data-pass="Usuario123!" data-rol="USUARIO">
+                        <span class="badge badge-usuario">USUARIO</span> Ing. Sofia Ramirez (Robótica)
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary-cyan btn-sm" id="btnAuthAction">
+                <span class="btn-icon">🔒</span> INICIAR SESIÓN
+            </button>
+        </div>
+    </header>
+
+    <!-- Barra de Navegación Principal por Pestañas -->
+    <nav class="tactical-nav">
+        <div class="nav-container">
+            <button class="nav-tab active" data-tab="acceso" id="navTabAcceso">
+                <span class="tab-index">00</span>
+                <span class="tab-label">ACCESO OPERADOR (LOGIN)</span>
+            </button>
+            <button class="nav-tab" data-tab="dashboard" id="navTabDashboard">
+                <span class="tab-index">01</span>
+                <span class="tab-label">CENTRO TÁCTICO</span>
+            </button>
+            <button class="nav-tab" data-tab="catalogo">
+                <span class="tab-index">02</span>
+                <span class="tab-label">CATÁLOGO & INVENTARIO</span>
+            </button>
+            <button class="nav-tab" data-tab="prestamos">
+                <span class="tab-index">03</span>
+                <span class="tab-label">PRÉSTAMOS & DEVOLUCIONES</span>
+                <span class="badge-counter" id="activeLoansBadge">0</span>
+            </button>
+            <button class="nav-tab" data-tab="usuarios" id="navTabUsuarios">
+                <span class="tab-index">04</span>
+                <span class="tab-label">OPERADORES & ROLES</span>
+            </button>
+            <button class="nav-tab" data-tab="cocomo">
+                <span class="tab-index">05</span>
+                <span class="tab-label">ESTIMACIÓN COCOMO II</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contenedor Principal de Vistas -->
+    <main class="tactical-workspace">
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 0: PORTAL DE ACCESO Y AUTENTICACIÓN (LOGIN DEDICADO)      -->
+        <!-- ================================================================= -->
+        <section class="tab-pane active" id="pane-acceso">
+            <div class="gateway-container">
+                <div class="gateway-card">
+                    <div class="gateway-header">
+                        <div class="gateway-emblem">
+                            <div class="gateway-emblem-inner"></div>
+                        </div>
+                        <h1 class="gateway-title">AETHER LAB // <span class="cyan-accent">CONTROL DE PRÉSTAMOS DE EQUIPOS Y HERRAMIENTAS</span></h1>
+                        <p class="gateway-subtitle">SISTEMA INTEGRAL DE INVENTARIO, ASIGNACIÓN Y DEVOLUCIÓN DE INSTRUMENTAL DE LABORATORIO</p>
+                    </div>
+
+                    <!-- Pestañas Login vs Registro -->
+                    <div class="auth-tabs gateway-tabs">
+                        <button class="auth-tab active" data-gateway-mode="login" id="btnGatewayTabLogin">INICIAR SESIÓN</button>
+                        <button class="auth-tab" data-gateway-mode="register" id="btnGatewayTabRegister">REGISTRAR NUEVO OPERADOR</button>
+                    </div>
+
+                    <!-- Formulario de Login Principal -->
+                    <div id="gatewayLoginForm" class="gateway-form-pane active">
+                        <form id="formGatewayLogin">
+                            <div class="form-group">
+                                <label><span class="text-cyan">01 //</span> CORREO ELECTRÓNICO INSTITUCIONAL</label>
+                                <input type="email" id="gatewayEmail" placeholder="ejemplo: admin@aetherlab.io" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="text-cyan">02 //</span> CONTRASEÑA ENCRIPTADA (BCRYPT)</label>
+                                <input type="password" id="gatewayPassword" placeholder="••••••••••••" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-cyan btn-block mt-3" style="padding: 12px; font-size: 13px;">
+                                <span class="btn-icon">⚡</span> ACCEDER AL CENTRO DE CONTROL
+                            </button>
+                        </form>
+
+                        <!-- Botones de Demostración Rápida 1-Clic -->
+                        <div class="gateway-demo-box mt-4">
+                            <div class="gateway-demo-header">
+                                <span>⚡ ACCESO RÁPIDO PARA EVALUACIÓN EN VIVO (1-CLIC):</span>
+                            </div>
+                            <div class="gateway-demo-grid">
+                                <button type="button" class="gateway-role-card" onclick="window.aether.quickLogin('admin@aetherlab.io', 'Admin123!')">
+                                    <div class="role-badge badge-admin">ADMINISTRADOR</div>
+                                    <div class="role-name">Dra. Elena Vasquez</div>
+                                    <div class="role-desc">Acceso Total, Gestión de Usuarios y Equipos</div>
+                                </button>
+                                <button type="button" class="gateway-role-card" onclick="window.aether.quickLogin('encargado@aetherlab.io', 'Encargado123!')">
+                                    <div class="role-badge badge-encargado">ENCARGADO</div>
+                                    <div class="role-name">Ing. Marco Altamirano</div>
+                                    <div class="role-desc">Taller, Calibración y Recepción Técnica</div>
+                                </button>
+                                <button type="button" class="gateway-role-card" onclick="window.aether.quickLogin('operador@aetherlab.io', 'Operador123!')">
+                                    <div class="role-badge badge-operador">OPERADOR</div>
+                                    <div class="role-name">Téc. Carlos Mendoza</div>
+                                    <div class="role-desc">Préstamos y Operación de Instrumental</div>
+                                </button>
+                                <button type="button" class="gateway-role-card" onclick="window.aether.quickLogin('investigador@aetherlab.io', 'Usuario123!')">
+                                    <div class="role-badge badge-usuario">INVESTIGADOR</div>
+                                    <div class="role-name">Ing. Sofia Ramirez</div>
+                                    <div class="role-desc">División Robótica y Prototipado</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Opción de Exploración sin Sesión -->
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-cyan btn-sm" id="btnExplorarInvitado">
+                                👁️ EXPLORAR CATÁLOGO E INVENTARIO SIN SESIÓN
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Registro Integrado -->
+                    <div id="gatewayRegisterForm" class="gateway-form-pane">
+                        <form id="formGatewayRegister">
+                            <div class="form-group">
+                                <label><span class="text-cyan">01 //</span> NOMBRE COMPLETO</label>
+                                <input type="text" id="gwRegNombre" placeholder="Dr. / Ing. / Téc. Nombre y Apellido" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="text-cyan">02 //</span> CORREO ELECTRÓNICO</label>
+                                <input type="email" id="gwRegEmail" placeholder="usuario@aetherlab.io" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="text-cyan">03 //</span> CONTRASEÑA (SE HASHEA CON BCRYPT AL ENVIAR)</label>
+                                <input type="password" id="gwRegPassword" placeholder="••••••••••••" minlength="6" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label><span class="text-cyan">04 //</span> ROL DESEADO</label>
+                                    <select id="gwRegRol">
+                                        <option value="USUARIO">USUARIO / INVESTIGADOR</option>
+                                        <option value="OPERADOR">OPERADOR DE BANCO</option>
+                                        <option value="ENCARGADO">ENCARGADO DE TALLER</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label><span class="text-cyan">05 //</span> DEPARTAMENTO</label>
+                                    <input type="text" id="gwRegDepartamento" placeholder="División I+D" value="División I+D & Prototipado">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-cyan btn-block mt-3" style="padding: 12px; font-size: 13px;">
+                                <span class="btn-icon">🔒</span> CREAR CUENTA CRIPTOGRÁFICA
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="gateway-footer">
+                        <span>AETHER LAB // BASE DE DATOS SQL SERVER: <strong class="text-cyan">LETICIA\SQLEXPRESS</strong></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 1: DASHBOARD / CENTRO TÁCTICO                             -->
+        <!-- ================================================================= -->
+        <section class="tab-pane" id="pane-dashboard">
+            <!-- Barra Superior de KPIs (HUD Cards) -->
+            <div class="kpi-grid">
+                <div class="kpi-card" data-accent="cyan">
+                    <div class="kpi-corner top-left"></div>
+                    <div class="kpi-corner bottom-right"></div>
+                    <div class="kpi-label">TOTAL INSTRUMENTAL</div>
+                    <div class="kpi-value mono-font" id="kpiTotalEquipos">--</div>
+                    <div class="kpi-subtext">Equipos registrados en matriz</div>
+                </div>
+
+                <div class="kpi-card" data-accent="emerald">
+                    <div class="kpi-corner top-left"></div>
+                    <div class="kpi-corner bottom-right"></div>
+                    <div class="kpi-label">DISPONIBLES</div>
+                    <div class="kpi-value mono-font text-emerald" id="kpiDisponibles">--</div>
+                    <div class="kpi-subtext">Listos para asignación inmediata</div>
+                </div>
+
+                <div class="kpi-card" data-accent="blue">
+                    <div class="kpi-corner top-left"></div>
+                    <div class="kpi-corner bottom-right"></div>
+                    <div class="kpi-label">EN PRÉSTAMO ACTIVO</div>
+                    <div class="kpi-value mono-font text-cyan" id="kpiPrestados">--</div>
+                    <div class="kpi-subtext">Operando en laboratorios/bahías</div>
+                </div>
+
+                <div class="kpi-card" data-accent="amber">
+                    <div class="kpi-corner top-left"></div>
+                    <div class="kpi-corner bottom-right"></div>
+                    <div class="kpi-label">MANTENIMIENTO</div>
+                    <div class="kpi-value mono-font text-amber" id="kpiMantenimiento">--</div>
+                    <div class="kpi-subtext">Calibración o revisión técnica</div>
+                </div>
+
+                <div class="kpi-card" data-accent="coral">
+                    <div class="kpi-corner top-left"></div>
+                    <div class="kpi-corner bottom-right"></div>
+                    <div class="kpi-label">DAÑADOS / ATENCIÓN</div>
+                    <div class="kpi-value mono-font text-coral" id="kpiDanados">--</div>
+                    <div class="kpi-subtext">Bloqueados por avería reportada</div>
+                </div>
+
+                <div class="kpi-card" data-accent="purple">
+                    <div class="kpi-corner top-left"></div>
+                    <div class="kpi-corner bottom-right"></div>
+                    <div class="kpi-label">TASA OPERATIVIDAD</div>
+                    <div class="kpi-value mono-font text-purple" id="kpiTasaOperatividad">--%</div>
+                    <div class="kpi-subtext">Salud global del equipamiento</div>
+                </div>
+            </div>
+
+            <!-- Panel Dividido: Préstamos en Curso y Trazabilidad de Auditoría -->
+            <div class="dashboard-split-grid">
+                <!-- Columna Izquierda: Préstamos Activos -->
+                <div class="tactical-panel panel-flex-grow">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">📡</span> MONITOR DE PRÉSTAMOS ACTIVOS
+                        </div>
+                        <div class="panel-tools">
+                            <button class="btn btn-outline-cyan btn-xs" id="btnIrAPrestamos">VER TODOS</button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tactical-table" id="dashboardActiveLoansTable">
+                                <thead>
+                                    <tr>
+                                        <th>CÓDIGO</th>
+                                        <th>EQUIPO</th>
+                                        <th>RESPONSABLE</th>
+                                        <th>PLAZO LÍMITE</th>
+                                        <th>ESTADO</th>
+                                        <th>ACCIÓN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">Sincronizando telemetría...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Trazabilidad Reciente / Historial de Estados -->
+                <div class="tactical-panel panel-sidebar">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">🛡️</span> AUDITORÍA & ESTADOS
+                        </div>
+                    </div>
+                    <div class="panel-body p-0">
+                        <div class="activity-feed" id="dashboardActivityFeed">
+                            <div class="p-3 text-center text-muted">Cargando registros...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 2: CATÁLOGO & INVENTARIO DE EQUIPOS                       -->
+        <!-- ================================================================= -->
+        <section class="tab-pane" id="pane-catalogo">
+            <!-- Barra de Filtros y Búsqueda Táctica -->
+            <div class="catalog-toolbar">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="catalogSearchInput" placeholder="Buscar por código, nombre, marca, modelo o serie..." autocomplete="off">
+                    <button class="clear-search-btn" id="btnCatalogClearSearch">✕</button>
+                </div>
+
+                <div class="filters-group">
+                    <div class="filter-select-wrapper">
+                        <label>CATEGORÍA:</label>
+                        <select id="catalogCategorySelect">
+                            <option value="TODAS">TODAS LAS CATEGORÍAS</option>
+                            <option value="Osciloscopios">Osciloscopios</option>
+                            <option value="Fuentes de Poder">Fuentes de Poder</option>
+                            <option value="Generadores">Generadores</option>
+                            <option value="Soldadura">Soldadura</option>
+                            <option value="Medición">Medición</option>
+                            <option value="Analizadores">Analizadores</option>
+                            <option value="Óptica y Térmica">Óptica y Térmica</option>
+                            <option value="Fabricación Digital">Fabricación Digital</option>
+                            <option value="RF & Microondas">RF & Microondas</option>
+                            <option value="Calibración">Calibración</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-select-wrapper">
+                        <label>ESTADO:</label>
+                        <select id="catalogStatusSelect">
+                            <option value="TODOS">TODOS LOS ESTADOS</option>
+                            <option value="DISPONIBLE">DISPONIBLE</option>
+                            <option value="PRESTADO">PRESTADO</option>
+                            <option value="EN_MANTENIMIENTO">EN MANTENIMIENTO</option>
+                            <option value="DANADO">DAÑADO</option>
+                        </select>
+                    </div>
+
+                    <!-- Botón para Admin/Encargado -->
+                    <button class="btn btn-primary-cyan" id="btnNuevoEquipo" style="display: none;">
+                        <span class="btn-icon">➕</span> NUEVO EQUIPO
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumen de Resultados -->
+            <div class="catalog-summary-bar">
+                <div>MOSTRANDO <span class="text-cyan mono-font" id="catalogResultsCount">0</span> EQUIPOS EN CATÁLOGO</div>
+                <div class="state-legend">
+                    <span class="legend-item"><span class="legend-dot bg-emerald"></span> DISPONIBLE</span>
+                    <span class="legend-item"><span class="legend-dot bg-cyan"></span> PRESTADO</span>
+                    <span class="legend-item"><span class="legend-dot bg-amber"></span> MANTENIMIENTO</span>
+                    <span class="legend-item"><span class="legend-dot bg-coral"></span> DAÑADO</span>
+                </div>
+            </div>
+
+            <!-- Grilla de Tarjetas de Equipos -->
+            <div class="equipment-grid" id="equipmentCardsContainer">
+                <!-- Se inyecta dinámicamente mediante app.js -->
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 3: PRÉSTAMOS & DEVOLUCIONES                               -->
+        <!-- ================================================================= -->
+        <section class="tab-pane" id="pane-prestamos">
+            <div class="section-top-bar">
+                <div class="section-title-wrap">
+                    <h2 class="section-title">CONSOLA DE CONTROL DE PRÉSTAMOS</h2>
+                    <p class="section-desc">Monitoreo de vencimientos, validación estricta de disponibilidad y registro de condiciones de retorno.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-primary-cyan" id="btnNuevoPrestamoDirecto">
+                        <span class="btn-icon">⚡</span> REGISTRAR NUEVO PRÉSTAMO
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros de la Tabla de Préstamos -->
+            <div class="table-filter-bar">
+                <div class="filter-pills">
+                    <button class="filter-pill active" data-loan-filter="TODOS">TODOS</button>
+                    <button class="filter-pill" data-loan-filter="ACTIVO">ACTIVOS EN CURSO</button>
+                    <button class="filter-pill" data-loan-filter="DEVUELTO">DEVUELTOS HISTÓRICOS</button>
+                </div>
+                <div class="table-search">
+                    <input type="text" id="loansSearchInput" placeholder="Filtrar por código, equipo o solicitante...">
+                </div>
+            </div>
+
+            <!-- Tabla Completa de Préstamos -->
+            <div class="tactical-panel">
+                <div class="panel-body p-0">
+                    <div class="table-responsive">
+                        <table class="tactical-table" id="allLoansTable">
+                            <thead>
+                                <tr>
+                                    <th>CÓD. PRÉSTAMO</th>
+                                    <th>EQUIPO ASIGNADO</th>
+                                    <th>SOLICITANTE</th>
+                                    <th>PROPÓSITO</th>
+                                    <th>FECHA ASIGNACIÓN</th>
+                                    <th>PLAZO MÁXIMO</th>
+                                    <th>ESTADO / CONDICIÓN</th>
+                                    <th>OPERACIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allLoansTableBody">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 4: GESTIÓN DE OPERADORES Y ROLES                          -->
+        <!-- ================================================================= -->
+        <section class="tab-pane" id="pane-usuarios">
+            <div class="section-top-bar">
+                <div class="section-title-wrap">
+                    <h2 class="section-title">DIRECTORIO DE OPERADORES & ROLES (RBAC)</h2>
+                    <p class="section-desc">Administración de credenciales criptográficas, permisos jerárquicos y habilitación de acceso al laboratorio.</p>
+                </div>
+                <div class="section-actions">
+                    <div class="badge badge-admin">ACCESO ADMINISTRATIVO RESTRINGIDO</div>
+                </div>
+            </div>
+
+            <div class="tactical-panel">
+                <div class="panel-body p-0">
+                    <div class="table-responsive">
+                        <table class="tactical-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>NOMBRE COMPLETO</th>
+                                    <th>CORREO ELECTRÓNICO</th>
+                                    <th>CARGO / DIVISIÓN</th>
+                                    <th>ROL ASIGNADO</th>
+                                    <th>ESTADO ACCESO</th>
+                                    <th>FECHA REGISTRO</th>
+                                    <th>GESTIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 5: ESTIMACIÓN COCOMO II Y MÉTRICAS DE CÓDIGO              -->
+        <!-- ================================================================= -->
+        <section class="tab-pane" id="pane-cocomo">
+            <div class="section-top-bar">
+                <div class="section-title-wrap">
+                    <h2 class="section-title">AUDITORÍA DE INGENIERÍA DE SOFTWARE & ESTIMACIÓN COCOMO II</h2>
+                    <p class="section-desc">Conteo en tiempo real de líneas de código fuente (SLOC), componentes arquitectónicos en 3 capas y estimación del esfuerzo de desarrollo.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-outline-cyan btn-sm" id="btnRefreshCocomo">
+                        <span class="btn-icon">🔄</span> RECALCULAR COCOMO II
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumen de Código y Métricas COCOMO II -->
+            <div class="cocomo-kpi-grid">
+                <div class="kpi-card" data-accent="cyan">
+                    <div class="kpi-label">LÍNEAS DE CÓDIGO (SLOC)</div>
+                    <div class="kpi-value mono-font text-cyan" id="cocomoSloc">--</div>
+                    <div class="kpi-subtext">Excluye líneas en blanco y comentarios</div>
+                </div>
+                <div class="kpi-card" data-accent="blue">
+                    <div class="kpi-label">TAMAÑO DEL SISTEMA (KSLOC)</div>
+                    <div class="kpi-value mono-font text-blue" id="cocomoKsloc">--</div>
+                    <div class="kpi-subtext">Miles de líneas de código fuente</div>
+                </div>
+                <div class="kpi-card" data-accent="emerald">
+                    <div class="kpi-label">ESFUERZO ESTIMADO (PM)</div>
+                    <div class="kpi-value mono-font text-emerald" id="cocomoPM">--</div>
+                    <div class="kpi-subtext">Persona-Meses (PM = 2.94 × KSLOC^1.05)</div>
+                </div>
+                <div class="kpi-card" data-accent="amber">
+                    <div class="kpi-label">TIEMPO ESTIMADO (TDEV)</div>
+                    <div class="kpi-value mono-font text-amber" id="cocomoTDEV">--</div>
+                    <div class="kpi-subtext">Meses calendario (TDEV = 3.67 × PM^0.28)</div>
+                </div>
+                <div class="kpi-card" data-accent="purple">
+                    <div class="kpi-label">EQUIPO DE INGENIERÍA</div>
+                    <div class="kpi-value mono-font text-purple" id="cocomoStaff">--</div>
+                    <div class="kpi-subtext">Personal promedio requerido</div>
+                </div>
+            </div>
+
+            <!-- Desglose por Capas Arquitectónicas -->
+            <div class="cocomo-breakdown-grid">
+                <div class="tactical-panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><span class="panel-icon">🏛️</span> DESGLOSE ARQUITECTÓNICO EN 3 CAPAS</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="layer-meters" id="cocomoLayerMeters">
+                            <!-- Metros y porcentajes dinámicos -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tactical-panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><span class="panel-icon">📐</span> PARÁMETROS DEL MODELO COCOMO II</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="cocomo-params-list">
+                            <div class="param-row">
+                                <span class="param-name">Modo de Proyecto:</span>
+                                <span class="param-val">Semi-Detached (Sistemas Web de Alta Fiabilidad)</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">Coeficiente Nominal (A):</span>
+                                <span class="param-val mono-font">2.94</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">Exponente de Escala (E):</span>
+                                <span class="param-val mono-font">1.05</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">Coeficiente de Calendario (C):</span>
+                                <span class="param-val mono-font">3.67</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">Exponente de Duración (F):</span>
+                                <span class="param-val mono-font">0.28</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">Fórmula de Esfuerzo:</span>
+                                <span class="param-val mono-font text-cyan">PM = 2.94 × (KSLOC)^1.05</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">Fórmula de Duración:</span>
+                                <span class="param-val mono-font text-amber">TDEV = 3.67 × (PM)^0.28</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Archivos e Inspección SLOC -->
+            <div class="tactical-panel mt-4">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="panel-icon">📂</span> INVENTARIO DE ARCHIVOS FUENTE DEL PROYECTO</div>
+                </div>
+                <div class="panel-body p-0">
+                    <div class="table-responsive">
+                        <table class="tactical-table" id="cocomoFilesTable">
+                            <thead>
+                                <tr>
+                                    <th>RUTA DEL ARCHIVO</th>
+                                    <th>LENGUAJE / EXT</th>
+                                    <th>SLOC (CÓDIGO NETO)</th>
+                                    <th>COMENTARIOS</th>
+                                    <th>EN BLANCO</th>
+                                    <th>TOTAL LÍNEAS</th>
+                                    <th>TAMAÑO</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cocomoFilesTableBody">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- MODALES TÁCTICOS                                                  -->
+    <!-- ================================================================= -->
+
+    <!-- 1. MODAL DE AUTENTICACIÓN / LOGIN & REGISTRO -->
+    <div class="tactical-modal-backdrop" id="modalAuth">
+        <div class="tactical-modal">
+            <div class="modal-corner top-left"></div>
+            <div class="modal-corner bottom-right"></div>
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="cyan-accent">AETHER //</span> ACCESO DE OPERADOR
+                </div>
+                <button class="modal-close" data-close-modal="modalAuth">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-auth-mode="login">INICIAR SESIÓN</button>
+                    <button class="auth-tab" data-auth-mode="register">NUEVO OPERADOR</button>
+                </div>
+
+                <!-- Formulario de Login -->
+                <form id="formLogin" class="auth-form active">
+                    <div class="form-group">
+                        <label>CORREO ELECTRÓNICO</label>
+                        <input type="email" id="loginEmail" placeholder="operador@aetherlab.io" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CONTRASEÑA ENCRIPTADA (BCRYPT)</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••••••" required>
+                    </div>
+
+                    <div class="quick-credentials-box">
+                        <div class="quick-cred-title">ACCESO RÁPIDO PARA EVALUACIÓN:</div>
+                        <div class="quick-cred-chips">
+                            <span class="cred-chip" onclick="window.aether.fillDemoCreds('admin@aetherlab.io', 'Admin123!')">Admin</span>
+                            <span class="cred-chip" onclick="window.aether.fillDemoCreds('encargado@aetherlab.io', 'Encargado123!')">Encargado</span>
+                            <span class="cred-chip" onclick="window.aether.fillDemoCreds('operador@aetherlab.io', 'Operador123!')">Operador</span>
+                            <span class="cred-chip" onclick="window.aether.fillDemoCreds('investigador@aetherlab.io', 'Usuario123!')">Investigador</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-cyan btn-block mt-3">
+                        AUTENTICAR Y ENTRAR A LA CONSOLA
+                    </button>
+                </form>
+
+                <!-- Formulario de Registro -->
+                <form id="formRegister" class="auth-form">
+                    <div class="form-group">
+                        <label>NOMBRE COMPLETO</label>
+                        <input type="text" id="regNombre" placeholder="Dr. / Ing. / Téc. Nombre y Apellido" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CORREO ELECTRÓNICO</label>
+                        <input type="email" id="regEmail" placeholder="usuario@aetherlab.io" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CONTRASEÑA (MIN. 6 CARACTERES)</label>
+                        <input type="password" id="regPassword" placeholder="••••••••••••" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>ROL ASIGNADO</label>
+                            <select id="regRol">
+                                <option value="USUARIO">USUARIO / INVESTIGADOR</option>
+                                <option value="OPERADOR">OPERADOR DE BANCO</option>
+                                <option value="ENCARGADO">ENCARGADO DE TALLER</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6">
+                            <label>DIVISIÓN / DEPARTAMENTO</label>
+                            <input type="text" id="regDepartamento" placeholder="I+D Prototipado" value="División I+D">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary-cyan btn-block mt-3">
+                        CREAR CUENTA CRIPTOGRÁFICA
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MODAL DE SOLICITUD DE PRÉSTAMO (VALIDACIÓN DE REGLAS DE NEGOCIO) -->
+    <div class="tactical-modal-backdrop" id="modalPrestamo">
+        <div class="tactical-modal modal-lg">
+            <div class="modal-corner top-left"></div>
+            <div class="modal-corner bottom-right"></div>
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="cyan-accent">PRÉSTAMO //</span> ASIGNACIÓN DE INSTRUMENTAL
+                </div>
+                <button class="modal-close" data-close-modal="modalPrestamo">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="rule-banner mb-3">
+                    <span class="rule-badge">REGLA ESTRICTA DE NEGOCIO</span>
+                    Solo se autoriza el préstamo de equipos en estado <strong>DISPONIBLE</strong>. El equipo pasará automáticamente a estado <strong>PRESTADO</strong> al confirmar la operación.
+                </div>
+
+                <form id="formPrestamo">
+                    <div class="form-group">
+                        <label>INSTRUMENTO / EQUIPO A PRESTAR *</label>
+                        <select id="prestamoEquipoSelect" required>
+                            <option value="">Seleccione equipo del catálogo...</option>
+                        </select>
+                    </div>
+
+                    <!-- Ficha técnica rápida del equipo seleccionado -->
+                    <div class="equipment-preview-box" id="prestamoEquipoPreview" style="display: none;">
+                        <div class="preview-badge" id="previewBadge">DISPONIBLE</div>
+                        <div class="preview-title" id="previewTitle">Tektronix DPO2024B</div>
+                        <div class="preview-meta" id="previewMeta">Lab Alfa // Bahía 01 - Banco A</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>SOLICITANTE / RESPONSABLE *</label>
+                            <input type="text" id="prestamoSolicitante" required>
+                        </div>
+                        <div class="form-group col-6">
+                            <label>DEPARTAMENTO / DIVISIÓN</label>
+                            <input type="text" id="prestamoDepartamento" value="División I+D & Prototipado">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>PLAZO LÍMITE DE DEVOLUCIÓN *</label>
+                        <input type="datetime-local" id="prestamoFechaLimite" required>
+                        <div class="quick-deadline-chips mt-2">
+                            <span class="time-chip" onclick="window.aether.setQuickDeadline(1)">+24 Horas</span>
+                            <span class="time-chip" onclick="window.aether.setQuickDeadline(3)">+3 Días</span>
+                            <span class="time-chip" onclick="window.aether.setQuickDeadline(7)">+7 Días</span>
+                            <span class="time-chip" onclick="window.aether.setQuickDeadline(15)">+15 Días</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>PROPÓSITO TÉCNICO / JUSTIFICACIÓN DE USO *</label>
+                        <textarea id="prestamoProposito" rows="3" placeholder="Detalle el proyecto, protocolo de pruebas o módulo donde se empleará el equipo..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>OBSERVACIONES DE ENTREGA / ACCESORIOS INCLUIDOS</label>
+                        <input type="text" id="prestamoObservaciones" placeholder="Ej: Puntas de prueba 10X, cable de alimentación original, funda...">
+                    </div>
+
+                    <div class="modal-footer-actions">
+                        <button type="button" class="btn btn-outline-cyan" data-close-modal="modalPrestamo">CANCELAR</button>
+                        <button type="submit" class="btn btn-primary-cyan" id="btnConfirmarPrestamo">
+                            CONFIRMAR Y AUTORIZAR PRÉSTAMO
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MODAL DE REGISTRO DE DEVOLUCIÓN (REGLA DE NEGOCIO ESTRICTA) -->
+    <div class="tactical-modal-backdrop" id="modalDevolucion">
+        <div class="tactical-modal">
+            <div class="modal-corner top-left"></div>
+            <div class="modal-corner bottom-right"></div>
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="cyan-accent">RECEPCIÓN //</span> REGISTRO DE DEVOLUCIÓN
+                </div>
+                <button class="modal-close" data-close-modal="modalDevolucion">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="rule-banner mb-3">
+                    <span class="rule-badge">REGLA ESTRICTA DE RETORNO</span>
+                    Si el equipo vuelve <strong>OPERATIVO</strong>, pasa a <strong>DISPONIBLE</strong>. Si se reporta <strong>CON OBSERVACIÓN</strong> o <strong>DAÑADO</strong>, se bloqueará en <strong>MANTENIMIENTO</strong> o <strong>DAÑADO</strong> hasta su peritaje.
+                </div>
+
+                <div class="loan-return-summary" id="devolucionSummary">
+                    <!-- Detalle del préstamo -->
+                </div>
+
+                <form id="formDevolucion">
+                    <input type="hidden" id="devolucionPrestamoId">
+
+                    <div class="form-group">
+                        <label>CONDICIÓN FÍSICA Y TÉCNICA DE RETORNO *</label>
+                        <div class="condition-selector-grid">
+                            <label class="condition-option" data-cond="OPERATIVO">
+                                <input type="radio" name="condicionDevolucion" value="OPERATIVO" checked>
+                                <div class="cond-box">
+                                    <div class="cond-title text-emerald">OPERATIVO</div>
+                                    <div class="cond-desc">100% Funcional. Pasa a estado <strong>DISPONIBLE</strong>.</div>
+                                </div>
+                            </label>
+
+                            <label class="condition-option" data-cond="CON_OBSERVACION">
+                                <input type="radio" name="condicionDevolucion" value="CON_OBSERVACION">
+                                <div class="cond-box">
+                                    <div class="cond-title text-amber">CON OBSERVACIÓN</div>
+                                    <div class="cond-desc">Falta calibración o detalle leve. Pasa a <strong>MANTENIMIENTO</strong>.</div>
+                                </div>
+                            </label>
+
+                            <label class="condition-option" data-cond="DANADO">
+                                <input type="radio" name="condicionDevolucion" value="DANADO">
+                                <div class="cond-box">
+                                    <div class="cond-title text-coral">DAÑADO / AVERIADO</div>
+                                    <div class="cond-desc">Inoperativo o con daño físico. Pasa a <strong>DAÑADO</strong>.</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>OBSERVACIONES TÉCNICAS DE RECEPCIÓN</label>
+                        <textarea id="devolucionObservaciones" rows="3" placeholder="Indique el estado de los accesorios, limpieza, pruebas realizadas o detalles del fallo reportado..."></textarea>
+                    </div>
+
+                    <div class="modal-footer-actions">
+                        <button type="button" class="btn btn-outline-cyan" data-close-modal="modalDevolucion">CANCELAR</button>
+                        <button type="submit" class="btn btn-primary-cyan">
+                            REGISTRAR DEVOLUCIÓN FORMAL
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MODAL DE CREACIÓN / EDICIÓN DE EQUIPO (ADMIN / ENCARGADO) -->
+    <div class="tactical-modal-backdrop" id="modalEquipo">
+        <div class="tactical-modal modal-lg">
+            <div class="modal-corner top-left"></div>
+            <div class="modal-corner bottom-right"></div>
+            <div class="modal-header">
+                <div class="modal-title" id="modalEquipoTitle">
+                    <span class="cyan-accent">EQUIPO //</span> INCORPORAR AL INVENTARIO
+                </div>
+                <button class="modal-close" data-close-modal="modalEquipo">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="formEquipo">
+                    <input type="hidden" id="equipoEditId">
+
+                    <div class="form-row">
+                        <div class="form-group col-4">
+                            <label>CÓDIGO ÚNICO (TAG) *</label>
+                            <input type="text" id="equipoCodigo" placeholder="EQ-OSC-02" required>
+                        </div>
+                        <div class="form-group col-8">
+                            <label>NOMBRE DEL INSTRUMENTO *</label>
+                            <input type="text" id="equipoNombre" placeholder="Osciloscopio Digital de 4 Canales" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-4">
+                            <label>CATEGORÍA *</label>
+                            <select id="equipoCategoria" required>
+                                <option value="Osciloscopios">Osciloscopios</option>
+                                <option value="Fuentes de Poder">Fuentes de Poder</option>
+                                <option value="Generadores">Generadores</option>
+                                <option value="Soldadura">Soldadura</option>
+                                <option value="Medición">Medición</option>
+                                <option value="Analizadores">Analizadores</option>
+                                <option value="Óptica y Térmica">Óptica y Térmica</option>
+                                <option value="Fabricación Digital">Fabricación Digital</option>
+                                <option value="RF & Microondas">RF & Microondas</option>
+                                <option value="Calibración">Calibración</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-4">
+                            <label>MARCA</label>
+                            <input type="text" id="equipoMarca" placeholder="Tektronix, Rigol, Fluke...">
+                        </div>
+                        <div class="form-group col-4">
+                            <label>MODELO</label>
+                            <input type="text" id="equipoModelo" placeholder="DPO2024B, DP832...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>NÚMERO DE SERIE</label>
+                            <input type="text" id="equipoNumeroSerie" placeholder="SN-8829-X">
+                        </div>
+                        <div class="form-group col-6">
+                            <label>UBICACIÓN FÍSICA EN LAB</label>
+                            <input type="text" id="equipoUbicacion" placeholder="Lab Alfa // Bahía 01 - Banco A">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>DESCRIPCIÓN OPERATIVA</label>
+                        <input type="text" id="equipoDescripcion" placeholder="Resumen del uso del instrumento en el taller...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ESPECIFICACIONES TÉCNICAS (RANGO, RESOLUCIÓN, ETC.)</label>
+                        <textarea id="equipoEspecificaciones" rows="2" placeholder="4 Canales, 200 MHz, 1 GS/s, decodificación I2C/SPI..."></textarea>
+                    </div>
+
+                    <div class="modal-footer-actions">
+                        <button type="button" class="btn btn-outline-cyan" data-close-modal="modalEquipo">CANCELAR</button>
+                        <button type="submit" class="btn btn-primary-cyan" id="btnGuardarEquipo">
+                            GUARDAR EN INVENTARIO
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MODAL DE CAMBIO MANUAL DE ESTADO (ADMIN / ENCARGADO) -->
+    <div class="tactical-modal-backdrop" id="modalCambiarEstado">
+        <div class="tactical-modal">
+            <div class="modal-corner top-left"></div>
+            <div class="modal-corner bottom-right"></div>
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="cyan-accent">ESTADO //</span> OVERRIDE ADMINISTRATIVO
+                </div>
+                <button class="modal-close" data-close-modal="modalCambiarEstado">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="cambiarEstadoEquipoInfo" class="mb-3">
+                    <!-- Dinámico -->
+                </div>
+                <form id="formCambiarEstado">
+                    <input type="hidden" id="cambiarEstadoEquipoId">
+                    <div class="form-group">
+                        <label>NUEVO ESTADO ADMINISTRATIVO *</label>
+                        <select id="cambiarEstadoSelect" required>
+                            <option value="DISPONIBLE">DISPONIBLE (Habilitado para préstamos)</option>
+                            <option value="EN_MANTENIMIENTO">EN MANTENIMIENTO (Revisión técnica)</option>
+                            <option value="DANADO">DAÑADO (Inoperativo)</option>
+                            <option value="DE_BAJA">DE BAJA (Retiro definitivo)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>MOTIVO / JUSTIFICACIÓN PARA LA AUDITORÍA *</label>
+                        <textarea id="cambiarEstadoMotivo" rows="3" placeholder="Indique la razón del cambio para el registro histórico..." required></textarea>
+                    </div>
+                    <div class="modal-footer-actions">
+                        <button type="button" class="btn btn-outline-cyan" data-close-modal="modalCambiarEstado">CANCELAR</button>
+                        <button type="submit" class="btn btn-primary-cyan">APLICAR CAMBIO DE ESTADO</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor Flotante de Notificaciones Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts del Cliente -->
+    <script src="app.js"></script>
+</body>
+</html>

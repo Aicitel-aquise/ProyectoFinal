@@ -9,6 +9,11 @@ obj/
 node_modules/
 dist/
 npm-debug.log*
+*.log
+
+# Database local binary
+database/*.db
+database/*.sqlite
 
 # OS / Editor
 .DS_Store
